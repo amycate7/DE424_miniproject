@@ -78,24 +78,22 @@ This involves constructing a model that accurately captures the wumpus's transit
 The solution was developed iteratively to accomodate the increasing complexity and varying characteristics of each dataset. The 
 PGM design process followed a structured methodology: defining the random variables, constructing the factors, and building a cluster graph for inference. 
 (note: this section must show model structure and show all factors. State and motivate all design choices)
+
 \subsection{Dataset 1}
-The initial model was designed for a 5 $\times$ 5 grid over a series of $T = 10$ time steps. In this scenario, 
+The initial model was designed for a 5 $\times$ 5 grid over a series of $T = 10$ time steps. In this case, 
 the known parameters $p_w = 0.95$ and $p_c = 0.05$ are constants.
 \subsection{Random Variable Definition}
-A critical design choice was made to represent the wumpus's location using a single latent RV $W^t$ instead of seperate 
-$X^t$ and $Y^t$ coordinates. The grid is mapped to a 1-dimensional vector space where each cell index $i \in \{0, \dots, 24\}$ 
-corresponds to a unique $(x,y)$ coordinate. This design choice is motivated by the following advantages: 
-\begin{itemize}
-  \item Reduced complexity: Capturing position in a single RV simplifies factor construction since the complexities of $X$ and $Y$ coordinate dependencies are avoided.
-  \item Enforced physical constraints: Illegal moves (such as diagonal moves) are easily set to a probability of zero within a $25 \times 25$ transition matrix.
-  \item Inference efficiency: Less RVs result in smaller clusters in the cluster graph, which leads to more efficient message passing and overall faster convergence.
-\end{itemize}
-
-The RVs are defined as follows: 
+A critical design choice was made to represent the wumpus's location using a single latent RV, $W^t$, instead of seperate 
+$X^t$ and $Y^t$ coordinates. The grid is mapped to a 1-dimensional vector where each cell index $i \in \{0, \dots, 24\}$ 
+corresponds to a unique $(x,y)$ coordinate. This approach offers several advantages. Primarily, it enhances inference efficiency by reducing the total number of RVs within the 
+cluster graph, which leads to more efficient message passing and overall faster convergence. Furthermore, it reduces complexity by simplifying 
+factor construction and avoiding the complexities of coordinating the dependencies between spatial coordinates. The wumpus's 
+movement constraints are more easily enforced within a transition matrix; for example, the probability of illegal moves, such as diagonal steps, 
+can be explicitly set to zero within one factor. The RVs are defined as follows: 
 
 \begin{itemize}
-  \item $W^t$: Position of the wumpus as time t, $W^t \in \{0, 1, \ldots 24 \}$.
-  \item $D^t_w$: Detection of wumpus at cell $W^t \in \{0, 1, \ldots 24 \}$ at time $t \in \{0, 1, \ldots 9\}$.
+  \item $W^t \in \{0,1, \ldots 24\}$: The latent position of the wumpus at time t.
+  \item $D^t_i$ \ in \{0,1\}: The binary detection status of cell $i$ at time $t$, where 1 indicates a detection.
 \end{itemize}
 
 \subsection{Define Factors}

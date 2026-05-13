@@ -110,6 +110,9 @@ INPUT C:\Users\amycm\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cme
 INPUT C:\Users\amycm\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex7.tfm
 OUTPUT miniproject.pdf
 INPUT C:\Users\amycm\AppData\Local\MiKTeX\fonts\map\pdftex\pdftex.map
+INPUT C:\Users\amycm\AppData\Local\Programs\MiKTeX\tex\latex\base\omscmr.fd
+INPUT C:\Users\amycm\AppData\Local\Programs\MiKTeX\tex\latex\base\omscmr.fd
+INPUT C:\Users\amycm\AppData\Local\Programs\MiKTeX\tex\latex\base\omscmr.fd
 INPUT miniproject.aux
 INPUT C:\Users\amycm\AppData\Local\MiKTeX\fonts\pk\ljfour\jknappen\ec\dpi600\tcrm1000.pk
 INPUT C:\Users\amycm\AppData\Local\MiKTeX\fonts\pk\ljfour\jknappen\ec\dpi600\tcrm1000.pk
