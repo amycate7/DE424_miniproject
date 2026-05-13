@@ -11,6 +11,9 @@
 \usepackage{subcaption}
 \usepackage{float}
 
+\usepackage{tikz}
+\usetikzlibrary{arrows,positioning,shapes}
+
 % Define colors for code highlighting
 \definecolor{codegreen}{rgb}{0,0.6,0}
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
@@ -39,7 +42,7 @@
 }
 
 % --- Document Information ---
-\title{DE 424: Practical 10 Report}
+\title{DE 424: Wumpus Trajectory Tracking Model}
 \author{Amy McDermott (26911264)}
 
 \begin{document}
@@ -76,12 +79,13 @@ This involves constructing a model that accurately captures the wumpus's transit
 
 \section{Solution Design}
 The solution was developed iteratively to accomodate the increasing complexity and varying characteristics of each dataset. The 
-PGM design process followed a structured methodology: defining the random variables, constructing the factors, and building a cluster graph for inference. 
+PGM design process followed a structured methodology: defining the random variables, defining the model, and constructing the model factors. 
+This process is detailed below for each attempted dataset.
 (note: this section must show model structure and show all factors. State and motivate all design choices)
 
 \subsection{Dataset 1}
 The initial model was designed for a 5 $\times$ 5 grid over a series of $T = 10$ time steps. In this case, 
-the known parameters $p_w = 0.95$ and $p_c = 0.05$ are constants.
+the parameters $p_w = 0.95$ and $p_c = 0.05$ are known constants.
 \subsection{Random Variable Definition}
 A critical design choice was made to represent the wumpus's location using a single latent RV, $W^t$, instead of seperate 
 $X^t$ and $Y^t$ coordinates. The grid is mapped to a 1-dimensional vector where each cell index $i \in \{0, \dots, 24\}$ 
@@ -96,7 +100,59 @@ can be explicitly set to zero within one factor. The RVs are defined as follows:
   \item $D^t_i$ \ in \{0,1\}: The binary detection status of cell $i$ at time $t$, where 1 indicates a detection.
 \end{itemize}
 
-\subsection{Define Factors}
+\subsection{Model Definition}
+The wumpus tracking task is formulated as a Hidden Markov Model (HMM), a framework used to infer a sequence of hidden states from observable outputs. (source).
+The latent trajectory of the wumpus ($W^0, W^1, \ldots, W^T$) is modeled as a first-order Markov process, $P(W^t \mid W^{t-1})$, where every future state depends on the current state, not on the sequence of states preceding it. 
+The observable detection variables are emissions that are generated from each state $p(D_l^t|W^t)$. A HMM is a subclass of Bayesian Networks, used for sequential data. 
+The model is illustrated below in Figure \ref{fig: BayesNet}.
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[
+        node distance=1.8cm,
+        latent/.style={circle, draw=black, thick, minimum size=1.1cm},
+        observed/.style={circle, draw=black, fill=gray!20, thick, minimum size=1.1cm},
+        arrow/.style={->, >=stealth, thick}
+    ]
+        % Nodes from HMM.drawio
+        \node[latent] (w0) {$W^0$};
+        \node[latent, right=of w0] (w1) {$W^1$};
+        \node[latent, right=of w1] (w2) {$W^2$};
+        \node[right=of w2] (dots) {$\dots$};
+        \node[latent, right=of dots] (wt) {$W^t$};
+        
+        \node[observed, below=of w0] (d0) {$D^0$};
+        \node[observed, below=of w1] (d1) {$D^1$};
+        \node[observed, below=of w2] (d2) {$D^2$};
+        \node[observed, below=of wt] (dt) {$D^t$};
+
+        % Transition Edges
+        \draw[arrow] (w0) -- (w1);
+        \draw[arrow] (w1) -- (w2);
+        \draw[arrow] (w2) -- (dots);
+        \draw[arrow] (dots) -- (wt);
+
+        % Emission Edges
+        \draw[arrow] (w0) -- (d0);
+        \draw[arrow] (w1) -- (d1);
+        \draw[arrow] (w2) -- (d2);
+        \draw[arrow] (wt) -- (dt);
+    \end{tikzpicture}
+    \caption{Bayesian Network structure of the HMM tracking solution.}
+    \label{fig: BayesNet}
+\end{figure}
+ 
+
+
+
+Two factors are defined in this model. 
+Firstly, one to model the motion of the wumpus over time, $p(W^t|W^T-1)$. This factor captures the wumpus random movements to adjacent cells.
+The wumpus can only move up, down, left and right, each having a probability of 0.20. If it attempts to leave the boundary of the grid, it will remain in place. 
+Due to this, if the wumpus is on a cell bordering the boundary, it will have a 0.25 prob of remaining in place, and if wumpus is in a corner (can't move to two out of four directions),
+it has a prob of remaining in place = 0.5. This stochastic time dependent trajectory can be modelled 
+
+Secondly, the other to model the probability of a cell detection conditioned on the wumpus location p($D_l^t|W^t$).
+
 
 Furthermore, because the resulting structure is a junction tree, the algorithm is guaranteed to reach exact inference in only two passes (forward and backward), ensuring maximum computational efficiency and faster overall runtime.
 
