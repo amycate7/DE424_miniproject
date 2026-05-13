@@ -81,17 +81,17 @@ PGM design process followed a structured methodology: defining the random variab
 \subsection{Dataset 1}
 The initial model was designed for a 5 $\times$ 5 grid over a series of $T = 10$ time steps. In this scenario, 
 the known parameters $p_w = 0.95$ and $p_c = 0.05$ are constants.
-\subsection{Define Random Variables}
-A critical design choice 
+\subsection{Random Variable Definition}
+A critical design choice was made to represent the wumpus's location using a single latent RV $W^t$ instead of seperate 
+$X^t$ and $Y^t$ coordinates. The grid is mapped to a 1-dimensional vector space where each cell index $i \in \{0, \dots, 24\}$ 
+corresponds to a unique $(x,y)$ coordinate. This design choice is motivated by the following advantages: 
+\begin{itemize}
+  \item Reduced complexity: Capturing position in a single RV simplifies factor construction since the complexities of $X$ and $Y$ coordinate dependencies are avoided.
+  \item Enforced physical constraints: Illegal moves (such as diagonal moves) are easily set to a probability of zero within a $25 \times 25$ transition matrix.
+  \item Inference efficiency: Less RVs result in smaller clusters in the cluster graph, which leads to more efficient message passing and overall faster convergence.
+\end{itemize}
 
-
-The PGM modelling process first involves defining the random variables (RV's) of the model. A design choice: instead of defining 
-two random variable - one for x and one for y coordinate - a single RV $W$ is chosen so that the wumpus location can be captured in one RV. 
-As such, each cell is numbered from 0 to 24 starting from top left.
-Capturing the latent wumpus position $W^t$ in a single RV instead of two seperate $X^t$ and $Y^t$ variables, results in a significant simplication of the 
-factor construction. Avoids dealing with the complexities of coordinating dependencies between two seperate co-ordinates as well as easily sets the probability of illegal moves 
-such as diagonal steps to zero within a single factor. Furthermore, using a single latent variable reduces the total number of RVs within the cluster graph, leading to more efficient message passing and overall 
-faster convergence. The RV's are defined below:
+The RVs are defined as follows: 
 
 \begin{itemize}
   \item $W^t$: Position of the wumpus as time t, $W^t \in \{0, 1, \ldots 24 \}$.
@@ -99,6 +99,9 @@ faster convergence. The RV's are defined below:
 \end{itemize}
 
 \subsection{Define Factors}
+
+Furthermore, because the resulting structure is a junction tree, the algorithm is guaranteed to reach exact inference in only two passes (forward and backward), ensuring maximum computational efficiency and faster overall runtime.
+
 
 
 \section{Code Implementation}
