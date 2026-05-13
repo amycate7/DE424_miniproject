@@ -1,0 +1,51 @@
+This is BibTeX, Version 0.99d
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: miniproject.aux
+Reallocating 'name_of_file' (item size: 1) to 6 items.
+The style file: plain.bst
+Reallocating 'name_of_file' (item size: 1) to 11 items.
+Database file #1: references.bib
+Warning--empty chapter and pages in jurafsky2023hmm
+Warning--empty publisher in jurafsky2023hmm
+You've used 1 entry,
+            2118 wiz_defined-function locations,
+            503 strings with 4119 characters,
+and the built_in function-call counts, 295 in all, are:
+= -- 23
+> -- 13
+< -- 0
++ -- 5
+- -- 4
+* -- 19
+:= -- 55
+add.period$ -- 4
+call.type$ -- 1
+change.case$ -- 4
+chr.to.int$ -- 0
+cite$ -- 3
+duplicate$ -- 13
+empty$ -- 26
+format.name$ -- 4
+if$ -- 58
+int.to.chr$ -- 0
+int.to.str$ -- 1
+missing$ -- 2
+newline$ -- 9
+num.names$ -- 2
+pop$ -- 11
+preamble$ -- 1
+purify$ -- 4
+quote$ -- 0
+skip$ -- 6
+stack$ -- 0
+substring$ -- 5
+swap$ -- 1
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 2
+warning$ -- 2
+while$ -- 2
+width$ -- 2
+write$ -- 13
+(There were 2 warnings)

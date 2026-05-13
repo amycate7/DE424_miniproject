@@ -83,7 +83,7 @@ PGM design process followed a structured methodology: defining the random variab
 This process is detailed below for each attempted dataset.
 (note: this section must show model structure and show all factors. State and motivate all design choices)
 
-\subsection{Dataset 1}
+\subsubsection{Dataset 1}
 The initial model was designed for a 5 $\times$ 5 grid over a series of $T = 10$ time steps. In this case, 
 the parameters $p_w = 0.95$ and $p_c = 0.05$ are known constants.
 \subsection{Random Variable Definition}
@@ -100,8 +100,8 @@ can be explicitly set to zero within one factor. The RVs are defined as follows:
   \item $D^t_i$ \ in \{0,1\}: The binary detection status of cell $i$ at time $t$, where 1 indicates a detection.
 \end{itemize}
 
-\subsection{Model Definition}
-The wumpus tracking task is formulated as a Hidden Markov Model (HMM), a framework used to infer a sequence of hidden states from observable outputs. (source).
+\subsubsection{Model Definition}
+The wumpus tracking task is formulated as a Hidden Markov Model (HMM), a framework used to infer a sequence of hidden states from observable outputs \cite{jurafsky2023hmm}.
 The latent trajectory of the wumpus ($W^0, W^1, \ldots, W^T$) is modeled as a first-order Markov process, $P(W^t \mid W^{t-1})$, where every future state depends on the current state, not on the sequence of states preceding it. 
 The observable detection variables are emissions that are generated from each state $p(D_l^t|W^t)$. A HMM is a subclass of Bayesian Networks, used for sequential data. 
 The model is illustrated below in Figure \ref{fig: BayesNet}.
@@ -142,17 +142,48 @@ The model is illustrated below in Figure \ref{fig: BayesNet}.
     \label{fig: BayesNet}
 \end{figure}
  
-
+\subsubsection{Factor Definition}
+The model is governed by two primary factors. The first factor models the latent movement
 
 
 Two factors are defined in this model. 
 Firstly, one to model the motion of the wumpus over time, $p(W^t|W^T-1)$. This factor captures the wumpus random movements to adjacent cells.
-The wumpus can only move up, down, left and right, each having a probability of 0.20. If it attempts to leave the boundary of the grid, it will remain in place. 
+The wumpus can only move up, down, left and right, each having a probability of 0.25. If it attempts to leave the boundary of the grid, it will remain in place. 
 Due to this, if the wumpus is on a cell bordering the boundary, it will have a 0.25 prob of remaining in place, and if wumpus is in a corner (can't move to two out of four directions),
-it has a prob of remaining in place = 0.5. This stochastic time dependent trajectory can be modelled 
+it has a prob of remaining in place = 0.5. This stochastic time dependent trajectory can be modelled by a transition matrix. In the case of a 5x5 grid, the resulting transition matrix is 25x25.
+
+\begin{table}[h]
+\centering
+\caption{Illustrative sample of the Transition Probability Factor $P(W^t \mid W^{t-1})$ for a $5 \times 5$ grid.}
+\label{tab:transition_factor}
+\begin{tabular}{|c|c|c|l|}
+\hline
+$W^{t-1}$ & $W^t$ & $P(W^t \mid W^{t-1})$ & \multicolumn{1}{c|}{\textbf{Description}} \\ \hline
+0         & 0     & 0.50                 & Stay (Blocked Up and Left) \\ \hline
+0         & 1     & 0.25                 & Valid Move (Right)         \\ \hline
+0         & 5     & 0.25                 & Valid Move (Down)          \\ \hline
+0         & 6     & 0.00                 & Illegal Move (Diagonal)    \\ \hline
+12        & 12    & 0.00                 & Stay (No Boundaries Hit)   \\ \hline
+12        & 13    & 0.25                 & Valid Move (Right)         \\ \hline
+\dots     & \dots & \dots                & \dots                      \\ \hline
+\end{tabular}
+\end{table}
 
 Secondly, the other to model the probability of a cell detection conditioned on the wumpus location p($D_l^t|W^t$).
 
+\begin{table}[h]
+\centering
+\caption{Illustrative sample of the Observation Factor for a single cell $i$ at time $t$.}
+\label{tab:observation_factor}
+\begin{tabular}{|c|c|c|l|}
+\hline
+$W^t$ & $D^t_i$ & $P(D^t_i \mid W^t)$ & \multicolumn{1}{c|}{\textbf{Description}} \\ \hline
+$i$   & 1       & $p_w$ (0.95)        & True Positive (Correct Detection)         \\ \hline
+$i$   & 0       & $1 - p_w$ (0.05)    & False Negative (Missed Detection)         \\ \hline
+$j \neq i$ & 1  & $p_c$ (0.05)        & False Positive (Clutter)                  \\ \hline
+$j \neq i$ & 0  & $1 - p_c$ (0.95)    & True Negative (Correct Non-Detection)      \\ \hline
+\end{tabular}
+\end{table}
 
 Furthermore, because the resulting structure is a junction tree, the algorithm is guaranteed to reach exact inference in only two passes (forward and backward), ensuring maximum computational efficiency and faster overall runtime.
 
@@ -161,7 +192,56 @@ Furthermore, because the resulting structure is a junction tree, the algorithm i
 \section{Code Implementation}
 Discussion + code snippets
 
-\section{}
+\section{Analysis of Results}
 Description of how you processed the output of solution, the presentation of results and analysis thereof. Report both qualitative and quantitative results.
 
+\begin{figure}[htbp]
+    \centering
+    % First Row
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{d1t0.png}
+        \caption{Time $t=0$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{d1t1.png}
+        \caption{Time $t=1$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{d1t3.png}
+        \caption{Time $t=3$}
+    \end{subfigure}
+
+    \vspace{1em} % Space between rows
+
+    % Second Row
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{d1t5.png}
+        \caption{Time $t=5$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{d1t8.png}
+        \caption{Time $t=8$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{d1t9.png}
+        \caption{Time $t=9$}
+    \end{subfigure}
+
+    \caption{Dataset 1 tracking performance across select time steps. The grid displays binary detection data, where the \textbf{red dot} represents the ground-truth wumpus location and the \textbf{yellow star} represents the location inferred by the MAP algorithm.}
+    \label{fig:dataset1_results}
+\end{figure}
+
+
+\bibliographystyle{plain} % Or 'ieeetr' for engineering-style numbering
+\bibliography{references} 
 \end{document}
