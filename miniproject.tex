@@ -405,12 +405,8 @@ for all the datasets.
 \section{Analysis of Results}
 Model performance is qualitatively assessed using a Python script to visualise the wumpus's path on the grid world. 
 The detection data is overlayed with the inferred trajectory and ground-truth data, allowing for a clear visual 
-comparison of the results. Figure \ref{fig:dataset1_results} displays these results for Dataset 1 at various time steps. 
-The corresponding visualisation for Dataset 2 is shown in Figure %\ref{fig:dataset2_results}, where the model scales to a larger environment.
-
-A Python script is used to create a graphical display of results, by importing the inferred wumpus trajectory, the ground truth trajectory and the observed detection data, 
-the grid world is visualised to see the results - the inferred vs actual wumpus location considering all the detection data. Figure \ref{fig:dataset1_results} illustrates 
-the visualisation for dataset 1 for select time steps. This is repeated in Figure for dataset 2. 
+comparison of the results. Figure \ref{fig:dataset1_results} displays these results for Dataset 1 at various time steps, where the yellow star represents the ground-truth wumpus location and the red dot represents the location inferred by the MAP algorithm. 
+The corresponding visualisation for Dataset 2 is shown in Figure \ref{fig:dataset2_results}, where the model scales to a larger environment.
 
 \begin{figure}[htbp]
     \centering
@@ -454,8 +450,35 @@ the visualisation for dataset 1 for select time steps. This is repeated in Figur
         \caption{Time $t=9$}
     \end{subfigure}
 
-    \caption{Dataset 1 tracking performance across select time steps. The grid displays binary detection data, where the \textbf{yellow star} represents the ground-truth wumpus location and the \textbf{red dot} represents the location inferred by the MAP algorithm.}
+    \caption{Dataset 1 tracking performance across select time steps.}
     \label{fig:dataset1_results}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    % Subfigure 1: t=0
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{d2t0.png}
+        \caption{Time $t=0$}
+    \end{subfigure}
+    \hfill
+    % Subfigure 2: t=9
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{d2t9.png}
+        \caption{Time $t=9$}
+    \end{subfigure}
+    \hfill
+    % Subfigure 3: t=18
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{d2t18.png}
+        \caption{Time $t=18$}
+    \end{subfigure}
+
+    \caption{Dataset 2 tracking performance on the $20 \times 20$ grid environment.}
+    \label{fig:dataset2_results}
 \end{figure}
 
 
