@@ -203,7 +203,11 @@ computational efficiency and inference accuracy. Due to the tree structure, the 
   \item $P(\mathbf{D}^t \mid W^t)$ is assigned to a cluster with scope $\{W^t\}$. 
 \end{itemize}
 
-For the trajectory inference task, Maximum A Posteriori (MAP) inference using the Max-Product algorithm was selected over Marginal inference (belief-propagation algorithm).
+For the trajectory inference task, Maximum A Posteriori (MAP) inference using the Max-Product algorithm was selected over Marginal inference. 
+This choice is motivated by the fact that MAP inference computes the most likely trajectory ($W^0, W^1, \dots, W^T$) which results in a path that is globally consistent and adheres to 
+the wumpus's movement constraints as defined in the transition model. The MAP estimates represent a valid movement of the wumpus through the grid world. In contrast, Marginal inference using 
+the belief-propagation algorithm identifies the most likely cell for the wumpus at each discrete time step independently. This may lead to a sequence of locations that are infeasible if certain cells have 
+high local probabilities.
 
 \subsection{Dataset 2}
 Extends upon dataset1 - we can see if model can expand for larger grid sizes.
