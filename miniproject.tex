@@ -481,6 +481,39 @@ The corresponding visualisation for Dataset 2 is shown in Figure \ref{fig:datase
     \label{fig:dataset2_results}
 \end{figure}
 
+A quantitative evaluation is used to objectively analyse the performance and scalability of the models. The primary metrics utilised include: Accuracy, Neighbourhood Accuracy, 
+Root Mean Square Error and Mean Manhattan Distance (MMD). Accuracy represents the percentage of times steps where the inferred MAP location $W^t$ matches the ground-truth coordinates. 
+To quantify classification deviations, the RMSE was calculated to measure the average Euclidean distance between the predicted and actual positions. 
+\begin{equation}
+    RMSE = \sqrt{\frac{1}{T} \sum_{t=0}^{T-1} \left[ (x_t - \hat{x}_t)^2 + (y_t - \hat{y}_t)^2 \right]}
+    \label{eq:rmse}
+\end{equation}
+Neighborhood Accuracy and MMD obtain a more naunced understanding of the model's tracking ability, especially in the more complex environments of Dataset 2. The Neighborhood 
+Accuracy measures the percentage of time steps that infer the location within one grid step of the actual position. Since the classes represent a physical grid, an inference that 
+is one cell removed from the ground truth is more valuable than one on the other side of the map. Lastly, the MMD provides an intuitive error measurement that represents 
+the average number of moves separating the MAP estimate from the wumpus's true location.
+\begin{equation}
+    MMD = \frac{1}{T} \sum_{t=0}^{T-1} \left( |x_t - \hat{x}_t| + |y_t - \hat{y}_t| \right)
+    \label{eq:mmd}
+\end{equation}
+
+\begin{table}[htbp]
+    \centering
+    \caption{Quantitative Results for Wumpus Tracking (Datasets 1 \& 2).}
+    \label{tab:comprehensive_results}
+    \begin{tabular}{lcccccl}
+        \hline
+        \textbf{Dataset} & \textbf{Acc. (\%)} & \textbf{N-Acc. (\%)} & \textbf{RMSE} & \textbf{MMD} & \textbf{Remarks} \\ \hline
+        Dataset 1        & 100.00\% & 100.00\% & 0.0000 & 0.00 & Perfect tracking. \\
+        Dataset 2        & 85.00\%  & 85.00\%  & 0.5477 & 0.30 & Deviations at $t \in \{0, 5, 11\}$. \\ \hline
+    \end{tabular}
+    \\[10pt]
+    \raggedright
+    \footnotesize{\textit{*Acc: Exact Match Accuracy; N-Acc: Neighborhood Accuracy (within 1 cell); \\ 
+    RMSE: Root Mean Square Error; MMD: Mean Manhattan Distance (steps).}}
+\end{table}
+
+
 
 \bibliographystyle{plain} % Or 'ieeetr' for engineering-style numbering
 \bibliography{references} 
