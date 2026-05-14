@@ -194,14 +194,48 @@ $j \neq i$ & 0  & $1 - p_c$ (0.95)    & True Negative (Correct Non-Detection)   
 \end{table}
 
 \subsubsection{Cluster Graph and Inference}
-The topology of an HMM naturally forms an acyclic graph. (source). Due to this, the Bayesian Network as shown in Figure \ref{fig: BayesNet} is 
+The topology of an HMM naturally forms an acyclic graph. (source). Due to this, the Bayesian Network shown in Figure \ref{fig: BayesNet} is 
 converted to a Junction Tree cluster graph using the built-in functionality of the $\mathbf{emdw}$ library. 
 This structure guarantees exact inference through a single forward-backward message-passing schedule, resulting in a balance between 
-computational efficiency and inference accuracy. Due to the tree structure, the complexity scales linearly, $O(T)$, with the number of time steps. The factors are assigned as follows:
+computational efficiency and inference accuracy. Due to the tree structure, the complexity scales linearly, $O(T)$, with the number of time steps. The factors and 
+cluster graph are shown below:
 \begin{itemize}
   \item $P(W^t \mid W^{t-1})$ is assigned to a cluster with the scope $\{W^{t-1}, W^t\}$.
   \item $P(\mathbf{D}^t \mid W^t)$ is assigned to a cluster with scope $\{W^t\}$. 
 \end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    % The {!} tells LaTeX to maintain the aspect ratio automatically
+    \resizebox{\textwidth}{!}{% 
+        \begin{tikzpicture}[
+            node distance=1.2cm and 1.8cm, % Slightly tighter spacing to help scaling
+            clique/.style={ellipse, draw=black, thick, minimum width=2.5cm, minimum height=1.1cm, fill=blue!5},
+            sepset/.style={rectangle, draw=black, fill=white, inner sep=3pt, font=\small},
+            arrow/.style={-, thick}
+        ]
+
+        % Cliques (Maximal clusters)
+        \node[clique] (c1) {$C_1: \{W^0, W^1\}$};
+        \node[clique, right=of c1] (c2) {$C_2: \{W^1, W^2\}$};
+        \node[right=of c2] (dots) {$\dots$};
+        \node[clique, right=of dots] (ct) {$C_T: \{W^{T-1}, W^T\}$};
+
+        % Connections with Rectangular Sepsets
+        \draw[arrow] (c1) -- (c2) node[midway, sepset] (s1) {$\{W^1\}$};
+        \draw[arrow] (c2) -- (dots) node[midway, sepset] (s2) {$\{W^2\}$};
+        \draw[arrow] (dots) -- (ct) node[midway, sepset] (st) {$\{W^{T-1}\}$};
+
+        % Factor Assignment Labels
+        \node[below=0.2cm of c1, font=\footnotesize, text=gray] {$\phi(W^0, W^1), \phi(D^0, W^0)$};
+        \node[below=0.2cm of c2, font=\footnotesize, text=gray] {$\phi(W^1, W^2), \phi(D^1, W^1)$};
+        \node[below=0.2cm of ct, font=\footnotesize, text=gray] {$\phi(W^{T-1}, W^T), \phi(D^T, W^T)$};
+
+        \end{tikzpicture}
+    } % End of resizebox
+    \caption{Cluster graph for exact inference.}
+    \label{fig:optimized_jt}
+\end{figure}
 
 For the trajectory inference task, Maximum A Posteriori (MAP) inference using the Max-Product algorithm was selected over Marginal inference. 
 This choice is motivated by the fact that MAP inference computes the most likely trajectory ($W^0, W^1, \dots, W^T$) which results in a path that is globally consistent and adheres to 
@@ -215,10 +249,13 @@ Dataset 2 uses a $20 \times 20$ grid.  This results in 400 possible states.  The
  $O(T)$ scales.
 
 \section{Code Implementation}
-Discussion + code snippets
+\subsection{Dataset 1}
+RVs are defined W\_rvs and D\_rvs. 
+
+Factors are implemented:
+Transition factor: A vector is declared to store transition factors
 
 
-Furthermore, because the resulting structure is a junction tree, the algorithm is guaranteed to reach exact inference in only two passes (forward and backward), ensuring maximum computational efficiency and faster overall runtime.
 
 
 
