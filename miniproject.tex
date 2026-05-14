@@ -500,7 +500,7 @@ the average number of moves separating the MAP estimate from the wumpus's true l
 \begin{table}[htbp]
     \centering
     \caption{Quantitative Results for Wumpus Tracking (Datasets 1 \& 2).}
-    \label{tab:comprehensive_results}
+    \label{tab:performance_results}
     \begin{tabular}{lcccccl}
         \hline
         \textbf{Dataset} & \textbf{Acc. (\%)} & \textbf{N-Acc. (\%)} & \textbf{RMSE} & \textbf{MMD} & \textbf{Remarks} \\ \hline
@@ -512,6 +512,13 @@ the average number of moves separating the MAP estimate from the wumpus's true l
     \footnotesize{\textit{*Acc: Exact Match Accuracy; N-Acc: Neighborhood Accuracy (within 1 cell); \\ 
     RMSE: Root Mean Square Error; MMD: Mean Manhattan Distance (steps).}}
 \end{table}
+
+As shown in Table \ref{tab:performance_results}, the model achieved a perfect success rate of 100\% on Dataset 1, indicating that the MAP inference successfully 
+filtered out detection inaccuricies in the smaller $5 \times 5$ grid environment. For the more complex $20 \times 20$ environment in Dataset 2, the accuracy decreased to 85\%, 
+with an RMSE of 0.5477 units. This performance drop is expected given the significantly grid world ($400$ cells) and the higher likelihood of sensor clutter 
+$p_c$ measurements. In Dataset 2, an MMD of 0.30 steps suggests that across the 20 time steps, the model was, on average, less than one-third of a grid step away from the true wumpus location. 
+This confirms that the trajectory remains highly reliable despite the increased state space of 400 cells. The low RMSE along with the MMD confirms that even when the model incorrectly classified the 
+wumpus's location, the prediction still remained in the spatial proximity of the ground truth.
 
 
 
