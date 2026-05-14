@@ -357,22 +357,47 @@ files and mapped to the corresponding $D^t_{loc}$ variable IDs. This ensures tha
 inference procedure is conditioned on the actual data provided in the datasets. 
 A \texttt{ClusterGraph} object is instantiated using the \texttt{BETHE} method which constructs
 a Junction Tree. The \texttt{loopyBP\_CG} function executes exact inference on the tree structure. 
-The result of MAP message passing is a set of max-marginal beliefs - one for each cluster. A max-marginal belief contains a likelihood value for each combination of RVs in
-the scope of its cluster. If there is a single most likely global combination of RVs, extracting this combination is
-easy: the most likely (local) combination of each max-marginal belief is consistent with the most likely global
-combination. The inference procedure results in the single most likely sequence of locations for the wumpus across all timesteps.
+Once message passing has converged, the cluster graph contains the posterior information required to determine the most likely state of the wumpus at each time step.
 
-\begin{lstlisting}[language=C++, caption={Cluster graph and message passing}, label={lst:cg}]
+\begin{lstlisting}[language=C++, caption={Cluster graph creation and message passing}, label={lst:cg}]
 ClusterGraph cg(ClusterGraph::BETHE, factorPtrs, obsv); 
 map<Idx2, rcptr<Factor> > msgs;
 MessageQueue msgQ;
 unsigned nMsgs = loopyBP_CG(cg, msgs, msgQ);
 \end{lstlisting}
 
-\subsection{Extract MAP Estimates}
+\subsection{Extraction of the MAP Estimates}
+The result of MAP message passing is a set of max-marginal beliefs. The most likely local combination of each max-marginal belief is consistent with the most likely global
+combination. The inference procedure thus results in the single most likely sequence of locations for the wumpus across all timesteps. 
+
+For every time step $t$, the cluster graph is queried using \texttt{queryLBP\_CG} for the belief of the latent variable $W^t$. 
+This belief represents the maximum joint probability of the entire sequence passing through that specific state at time $t$. 
+A nested loop then iterates through all possible grid cells to identify the cell that yields the highest value in the max-marginal factor. 
+This identifies the specific position, at that time step $t$, that belongs to the overall most likely trajectory. 
+
+\begin{lstlisting}[language=C++, caption={Extraction of MAP estimates from max-marginal beliefs.}, label={lst:MAPExtract}]
+rcptr<Factor> beliefT = queryLBP_CG(cg, msgs, {W_rvs[t]})->normalize(); // Query
+for (int row = 0; row < R; row++) {
+  for (int col = 0; col < C; col++) {
+    // Calculate the cell index and extract likelihood
+    unsigned int cell_idx = row * C + col;
+    double likelihood = beliefT->potentialAt({W_rvs[t]}, {(T)cell_idx});
+    if (likelihood > max_likelihood) {
+      max_likelihood = likelihood;
+      best_cell = cell_idx;
+    }
+  }
+}
+\end{lstlisting}
+
+To facilitate the model evaluation phase, each inferred cell index is converted back into Cartesian $(x, y)$ 
+coordinates and exported to an external text file. Persisting the data in this manner ensures that the inferred 
+trajectory remains structurally consistent with the ground-truth datasets.
 
 
-
+The resulting cell index is converted back into $(x, y)$ before being written to an 
+external text file. This persists the data for future model evaluation. This ensures that the inferred path's data structure is consistent with that of the 
+ground-truth's structure, which leads to the comparison of the inferred to be esaily done in the evlaution phase.
 
 Perform MAP inference on Wumpus location for all time steps and save results to file wumpus
 location1.txt
