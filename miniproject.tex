@@ -249,7 +249,7 @@ Dataset 2 uses a $20 \times 20$ grid.  This results in 400 possible states.  The
  $O(T)$ scales.
 
 \section{Code Implementation}
-\subsection{Dataset 1}
+\subsection{Define the Random Variables}
 The model uses two primary vectors for RV management: \texttt{W\_rvs} for the latent wumpus positions 
 and \texttt{D\_rvs} for observed detections. Storing the random variable IDs in these vectors 
 allows efficient looping during the factor construction phase, as specific time dependent RVs ($W^{T-1}$ and $W^t$) can be accessed 
@@ -260,6 +260,7 @@ vector<T> W_rvs(T_max);
 vector<vector<T>> D_rvs(T_max, vector<T>(25));
 \end{lstlisting}
 
+\subsection{Implementation of the Transition Model}
 The transition model is implemented by iterating through each time step and constructing a transition factor $P(W^t \mid W^{t-1})$ 
 that connects every current state to its previous. The implentation logic follows a few key steps. Firstly, within each iteration of the temporal loop, 
 the unique IDs for the current and previous wumpus positions are retrieved from the \texttt{W\_rvs} vector. Because the grid is 
@@ -298,11 +299,22 @@ A \texttt{std::map} is used to store only the non-zero probabililities to preven
 with many zeros which consequently improves computational performance. These sparse entries are then used to instantiate an \texttt{emdw} Discrete Table (\texttt{DT}) called \texttt{ptrTransition}, which is then stored 
 in a vector of factor pointers for later use in the cluster graph.
 
-\begin{lstlisting}[language=C++, caption={Vector of transition factor pointers}, label={lst:coordconv}]
+\begin{lstlisting}[language=C++, caption={Vector of transition factor pointers}, label={lst:transVector}]
 transitionFactors.push_back(ptrTransition);
 \end{lstlisting}
 
+\subsection{Implementation of the Detection Model}
+The relationship between the latent wumpus position and the observed detection data $P(\mathbf{D}^t \mid W^t)$
+is implemented through a nested looping structure that generates a detection factor for every cell at every time step.
+An outer loop is utilised to iterate through each time step $t$ and an inner loop to iterate through every 
+grid cell \texttt{loc}. This ensures that each cell in the grid world generates its own binary observation variable 
+$D^t_{loc}$ dependent on the wumpus's latent position $W^t$. For each cell, the probability of a detection (1) or no detection (0) is evaluated based on 
+whether the wumpus is currently occupying that specific cell.
 
+\begin{itemize}
+  \item $w\_pos == loc$ (True detection): The wumpus is in the cell. The probability of a correct detection is assigned the parameter $p_w$, while a missed detection is $1 - p_w$. 
+  \item $w\_pos \neq loc$ (Clutter measurement): The wumpus is not in the cell. The probability of a detection is $p_c$, and a correct non-detection is $1 - p_c$.
+\end{itemize}
 
 \begin{lstlisting}[language=C++, caption={Detection factor initialisation.}, label={lst:observation_factor}]
 // loc is the location of the specific cell we are building a factor for
@@ -322,6 +334,16 @@ for (int loc = 0; loc < num_cells; loc++) {
   } // end of wumpus location loop
 }
 \end{lstlisting}
+
+The factor scope is defined as $\{D^t\_{loc}, W^t\}$ which is extracted from the $W\_rvs$ and $D\_rvs$ vectors. 
+By using a \texttt{std::map} to store the \texttt{detectionProbs}, the sparse implementation remains efficient. 
+These probabilities are used to instantiate DT factors which are then stored in a \texttt{detectionFactors} vector. 
+
+\begin{lstlisting}[language=C++, caption={Vector of detection factor pointers}, label={lst:detectVector}]
+detectionFactors.push_back(ptrDetections);
+\end{lstlisting}
+
+\subsection{Construct Cluster Graph}
 
 
 1. Create factor to store all detection and transition factors

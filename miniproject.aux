@@ -18,23 +18,28 @@
 \newlabel{fig:optimized_jt}{{2}{3}{}{}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Dataset 2}{4}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {3}Code Implementation}{4}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Dataset 1}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Define the Random Variables}{4}{}\protected@file@percent }
 \newlabel{lst:rv_init}{{1}{4}{}{}{}}
 \@writefile{lol}{\contentsline {lstlisting}{\numberline {1}{\ignorespaces Declaration of latent and observable random variable vectors.}}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Implementation of the Transition Model}{4}{}\protected@file@percent }
 \newlabel{lst:coordconv}{{2}{4}{}{}{}}
 \@writefile{lol}{\contentsline {lstlisting}{\numberline {2}{\ignorespaces Conversion of grid indices to $(x, y)$ coordinates}}{4}{}\protected@file@percent }
 \newlabel{lst:transition_factor}{{3}{4}{}{}{}}
 \@writefile{lol}{\contentsline {lstlisting}{\numberline {3}{\ignorespaces Transition factor logic.}}{4}{}\protected@file@percent }
-\newlabel{lst:coordconv}{{4}{5}{}{}{}}
+\newlabel{lst:transVector}{{4}{5}{}{}{}}
 \@writefile{lol}{\contentsline {lstlisting}{\numberline {4}{\ignorespaces Vector of transition factor pointers}}{5}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Implementation of the Detection Model}{5}{}\protected@file@percent }
 \newlabel{lst:observation_factor}{{5}{5}{}{}{}}
 \@writefile{lol}{\contentsline {lstlisting}{\numberline {5}{\ignorespaces Detection factor initialisation.}}{5}{}\protected@file@percent }
-\newlabel{lst:cg}{{6}{5}{}{}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {6}{\ignorespaces Cluster graph and message passing}}{5}{}\protected@file@percent }
+\newlabel{lst:detectVector}{{6}{5}{}{}{}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {6}{\ignorespaces Vector of detection factor pointers}}{5}{}\protected@file@percent }
 \bibstyle{plain}
 \bibdata{references}
 \bibcite{jurafsky2023hmm}{1}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Construct Cluster Graph}{6}{}\protected@file@percent }
+\newlabel{lst:cg}{{7}{6}{}{}{}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {7}{\ignorespaces Cluster graph and message passing}}{6}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {4}Analysis of Results}{6}{}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Dataset 1 tracking performance across select time steps. The grid displays binary detection data, where the \textbf  {yellow star} represents the ground-truth wumpus location and the \textbf  {red dot} represents the location inferred by the MAP algorithm.}}{6}{}\protected@file@percent }
-\newlabel{fig:dataset1_results}{{3}{6}{}{}{}}
-\gdef \@abspage@last{6}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Dataset 1 tracking performance across select time steps. The grid displays binary detection data, where the \textbf  {yellow star} represents the ground-truth wumpus location and the \textbf  {red dot} represents the location inferred by the MAP algorithm.}}{7}{}\protected@file@percent }
+\newlabel{fig:dataset1_results}{{3}{7}{}{}{}}
+\gdef \@abspage@last{7}
