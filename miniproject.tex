@@ -253,15 +253,29 @@ Dataset 2 uses a $20 \times 20$ grid.  This results in 400 possible states.  The
 The model uses two primary vectors for RV management: \texttt{W\_rvs} for the latent wumpus positions 
 and \texttt{D\_rvs} for observed detections. Storing the random variable IDs in these vectors 
 allows efficient looping during the factor construction phase, as specific time dependent RVs ($W^{T-1}$ and $W^t$) can be accessed 
-directly via their vector indices. \texttt{D\_rvs} is a 2D vector, one RV for each time step and cell location.
+directly via their vector indices. \texttt{D\_rvs} is a 2D vector which indexes one RV for each time step and cell location.
 
 \begin{lstlisting}[language=C++, caption={Declaration of latent and observable random variable vectors.}, label={lst:rv_init}]
 vector<T> W_rvs(T_max); 
 vector<vector<T>> D_rvs(T_max, vector<T>(25));
 \end{lstlisting}
 
+The transition model is implemented by iterating through each time step and constructing a transition factor $P(W^t \mid W^{t-1})$ 
+that connects every current state to its previous. The implentation logic follows a few key steps. Firstly, within each iteration of the temporal loop, 
+the unique IDs for the current and previous wumpus positions are retrieved from the \texttt{W\_rvs} vector. Because the grid is 
+represented using a 1D index (0 to 24), the code converts these indices back into $(x, y)$ coordinates to facilitate the check for valid adjacent moves. 
 
-\begin{lstlisting}[language=C++, caption={Transition factor initialisation.}, label={lst:transition_factor}]
+\begin{lstlisting}[language=C++, caption={Conversion of grid indices to $(x, y)$ coordinates}, label={lst:coordconv}]
+int x = i % width; // x-coordinate
+int y = i / width; // y-coordinate
+\end{lstlisting}
+
+Coordinate offsets ($dx$ and $dy$) are used to determine all potential subsequent wumpus location. To handle the grid boundaries, 
+the proposed wumpus position is checked if it stays withing the grid dimensions. If a move is valid, it is assigned a probability of 0.25; and if a move 
+would go out of bounds, the 0.25 probability is instead accumulated. This ensures that the probability of staying in a cell correctly reflects how many boundaries that 
+the cell is touching (e.g., 0.5 in a corner).
+
+\begin{lstlisting}[language=C++, caption={Transition factor logic.}, label={lst:transition_factor}]
 // Define possible grid moves (up, down, left, right)
 int dx[] = {0, 0, -1, 1};
 int dy[] = {1, -1, 0, 0};
@@ -280,11 +294,20 @@ for (int move = 0; move < 4; move++) {
 transitionProbs[{i, i}] = stay_prob;// Prob of wumpus staying in the same cell
 \end{lstlisting}
 
+A \texttt{std::map} is used to store only the non-zero probabililities to prevent creating a massive $25 \times 25$ table 
+with many zeros which consequently improves computational performance. These sparse entries are then used to instantiate an \texttt{emdw} Discrete Table (\texttt{DT}) called \texttt{ptrTransition}, which is then stored 
+in a vector of factor pointers for later use in the cluster graph.
+
+\begin{lstlisting}[language=C++, caption={Vector of transition factor pointers}, label={lst:coordconv}]
+transitionFactors.push_back(ptrTransition);
+\end{lstlisting}
+
+
 
 \begin{lstlisting}[language=C++, caption={Detection factor initialisation.}, label={lst:observation_factor}]
 // loc is the location of the specific cell we are building a factor for
 for (int loc = 0; loc < num_cells; loc++) {
-  int D_curr = D_rvs[t][loc]; // Extract index of D RV at time t and grid location loc
+  int D_curr = D_rvs[t][loc]; // Extract index of D RV at time t and grid location
   map<vector<T>, FProb> detectionProbs;
   // w_pos is the latent position of the wumpus 
   for (int w_pos = 0; w_pos < num_cells; w_pos++){
@@ -326,7 +349,7 @@ For every cell for time step t, we perform: to extract highest max marginal (wil
 Convert the bestCell index back to (row, col) and output to file wumpus\_location1.txt
 
 
-MAP inference:
+Notes to add - MAP inference:
 Specify operators to the factor, so that when marginalize() operator is called, maximisation occurs instead.
 Now, when you call the member function marginalize, it will perform maximisation instead, and when you call the member functions
 normalize and inplaceNormalize, it will perform normalisation appropriate for MAP inference (i.e., the
