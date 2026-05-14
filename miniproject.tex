@@ -121,10 +121,10 @@ The model is illustrated below in Figure \ref{fig: BayesNet}.
         \node[right=of w2] (dots) {$\dots$};
         \node[latent, right=of dots] (wt) {$W^t$};
         
-        \node[observed, below=of w0] (d0) {$D^0$};
-        \node[observed, below=of w1] (d1) {$D^1$};
-        \node[observed, below=of w2] (d2) {$D^2$};
-        \node[observed, below=of wt] (dt) {$D^t$};
+        \node[observed, below=of w0] (d0) {$\textbf{D}^0$};
+        \node[observed, below=of w1] (d1) {$\textbf{D}^1$};
+        \node[observed, below=of w2] (d2) {$\textbf{D}^2$};
+        \node[observed, below=of wt] (dt) {$\textbf{D}^t$};
 
         % Transition Edges
         \draw[arrow] (w0) -- (w1);
@@ -244,12 +244,14 @@ the belief-propagation algorithm identifies the most likely cell for the wumpus 
 high local probabilities.
 
 \subsection{Dataset 2}
-Extends upon dataset1 - we can see if model can expand for larger grid sizes.
-Dataset 2 uses a $20 \times 20$ grid.  This results in 400 possible states.  The transition factor for Dataset 2 will therefore be a $400 \times 400$ matrix. 
- $O(T)$ scales.
+To evaluate the model's robustness, the model is extended to Dataset 2, which utilises a $20 \times 20$ grid. This significantly increases the number of possible wumpus locations 
+to 400, meaning the transition factor expands into a $400 \times 400$ matrix, while each of the 400 binary detection factors per time step scales to a $2 \times 400$ conditional probability table. 
+The parameters for this environment are defined as $p_w = 0.9$ and $p_c = 0.1$. This dataset serves as a critical test to verify that the implementation can handle 
+larger grid sizes efficiently without a drastic computational cost. Despite the increased dimensionality, the Junction Tree structure remains. Consequently, the time 
+complexity remains linear $O(T)$ and the computational resources (time or memory) scale proportionally with the size $T$.
 
 \section{Code Implementation}
-\subsection{Define the Random Variables}
+\subsection{Random Variables Definition}
 The model uses two primary vectors for RV management: \texttt{W\_rvs} for the latent wumpus positions 
 and \texttt{D\_rvs} for observed detections. Storing the random variable IDs in these vectors 
 allows efficient looping during the factor construction phase, as specific time dependent RVs ($W^{T-1}$ and $W^t$) can be accessed 
@@ -260,7 +262,7 @@ vector<T> W_rvs(T_max);
 vector<vector<T>> D_rvs(T_max, vector<T>(25));
 \end{lstlisting}
 
-\subsection{Implement Model Factors}
+\subsection{Implementation of the Model Factors}
 To ensure that the tracking solution computes the Maximum A Posteriori (MAP) trajectory rather than the marginal probabilities, the factors were instantiated with specific operators.
 During the construction of both transition and detection factors, specialised pointers for marginalization (\texttt{DiscreteTable\_MaxMarginalize}) and normalization (\texttt{DiscreteTable\_MaxNormalize}) were passed to the \texttt{DiscreteTable} (\texttt{DT}) constructor.
 By defining the factors this way, the functions called by the cluster graph change their behavior: the \texttt{marginalize()} operation performs maximisation instead of summation, and the \texttt{normalize()} operation scales the factor such that its maximum value is 1. 
@@ -394,14 +396,11 @@ trajectory remains structurally consistent with the ground-truth datasets. Once 
 the inference procedure has identified the single most likely sequence of locations for the wumpus across all timesteps. 
 
 \subsection{Dataset 2}
+To implement the code for DS 2, minimal changes needed to be made, including updating how to create locationDom (iterating over 400 indices),
+updated all parameters: T\_max, pw, pc, num\_cells. Construction of factors and cluster graph  as well as querying and performing MAP inference remains the same. 
+The function to load in evidence was updated 
+so that is could handle the varying file naming (data\_file001.txt vs data\_file010.txt for example)
 
-updated how to create locationDom
-updated all parameters (num\_cells) etc
-changed reading in data function to account for the different naming convention
-
-A brief description of how you processed the output of your solution, the presentation of your
-results, and an analysis thereof. You should report appropriate qualitative and quantitative results
-for all the datasets.
 \section{Analysis of Results}
 Model performance is qualitatively assessed using a Python script to visualise the wumpus's path on the grid world. 
 The detection data is overlayed with the inferred trajectory and ground-truth data, allowing for a clear visual 
@@ -521,7 +520,6 @@ This confirms that the trajectory remains highly reliable despite the increased 
 wumpus's location, the prediction still remained in the spatial proximity of the ground truth.
 
 
-
-\bibliographystyle{plain} % Or 'ieeetr' for engineering-style numbering
+\bibliographystyle{ieeetr} % Or plain
 \bibliography{references} 
 \end{document}

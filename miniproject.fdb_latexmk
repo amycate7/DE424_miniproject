@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex miniproject"] 1778785064.07509 "miniproject.aux" "miniproject.bbl" "miniproject" 1778785069.4461 0
+["bibtex miniproject"] 1778786911.38304 "miniproject.aux" "miniproject.bbl" "miniproject" 1778788718.31654 0
   "./references.bib" 1778700639 284 ff4e7d44ee39265cc82cde20ae07e456 ""
-  "C:/Users/amycm/AppData/Local/Programs/MiKTeX/bibtex/bst/bibtex/plain.bst" 1291864736 20613 bd3fbfa9f64872b81ac57a0dd2ed855f ""
-  "miniproject.aux" 1778785067 5224 2914dcbaf4be6bace1a80d40dbcacf9f "pdflatex"
+  "C:/Users/amycm/AppData/Local/Programs/MiKTeX/bibtex/bst/bibtex/ieeetr.bst" 1291864344 18361 1a00e58565e7f19bf2b3e1bfb82254ae ""
+  "miniproject.aux" 1778788716 5237 236829f4a798a11551d636d3c08bb8e8 "pdflatex"
   (generated)
   "miniproject.bbl"
   "miniproject.blg"
   (rewritten before read)
-["pdflatex"] 1778785064.69473 "c:/Users/amycm/OneDrive/Fourth Year Eng/DE 424/miniproject/miniproject.tex" "miniproject.pdf" "miniproject" 1778785069.44833 0
+["pdflatex"] 1778788713.88866 "c:/Users/amycm/OneDrive/Fourth Year Eng/DE 424/miniproject/miniproject.tex" "miniproject.pdf" "miniproject" 1778788718.31814 0
   "C:/Users/amycm/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1777723742 80909 eab91d9745dd2edfd62a31d53cd5fe15 ""
   "C:/Users/amycm/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/tcrm1000.pk" 1771777320 11548 3733c2be99a8771db6b20a4f2c53a92f ""
   "C:/Users/amycm/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1742326988 24225046 5915e9a9cac594d1b341b9065a42c5ad ""
@@ -176,7 +176,7 @@
   "C:/Users/amycm/AppData/Local/Programs/MiKTeX/tex/latex/pgf/utilities/pgfkeys.sty" 1673775190 274 5ae372b7df79135d240456a1c6f2cf9a ""
   "C:/Users/amycm/AppData/Local/Programs/MiKTeX/tex/latex/pgf/utilities/pgfrcs.sty" 1673775190 325 f9f16d12354225b7dd52a3321f085955 ""
   "C:/Users/amycm/AppData/Local/Programs/MiKTeX/tex/latex/xcolor/xcolor.sty" 1700127522 55487 80a65caedd3722f4c20a14a69e785d8f ""
-  "c:/Users/amycm/OneDrive/Fourth Year Eng/DE 424/miniproject/miniproject.tex" 1778785057 31242 868c87f81ceb3fe35e4230ad3274f128 ""
+  "c:/Users/amycm/OneDrive/Fourth Year Eng/DE 424/miniproject/miniproject.tex" 1778788712 31911 2a44a45680708481238a9df69b65bb43 ""
   "d1t0.png" 1778703280 22551 235f453d565ac69855d735cb49a25bf6 ""
   "d1t1.png" 1778703145 22241 359696dff1b1387405d2932a1fd0d761 ""
   "d1t3.png" 1778703397 22266 925fa225a9e8cec780ae87888f30cf92 ""
@@ -186,9 +186,9 @@
   "d2t0.png" 1778772058 61856 a9d09690c6c9383c04b6da6a54966b60 ""
   "d2t18.png" 1778772092 61702 908510a01f6ae7a1ddce0fe155a47246 ""
   "d2t9.png" 1778772133 61343 4d63bbb9e095b4649c6b7b92848c6a3e ""
-  "miniproject.aux" 1778785067 5224 2914dcbaf4be6bace1a80d40dbcacf9f "pdflatex"
-  "miniproject.bbl" 1778785064 199 9f09f1e94c109f38722dce72438e0f8c "bibtex miniproject"
-  "miniproject.tex" 1778785057 31242 868c87f81ceb3fe35e4230ad3274f128 ""
+  "miniproject.aux" 1778788716 5237 236829f4a798a11551d636d3c08bb8e8 "pdflatex"
+  "miniproject.bbl" 1778786911 181 b3c182b8579b569760a243da80e731db "bibtex miniproject"
+  "miniproject.tex" 1778788712 31911 2a44a45680708481238a9df69b65bb43 ""
   (generated)
   "miniproject.aux"
   "miniproject.log"
