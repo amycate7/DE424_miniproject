@@ -260,7 +260,12 @@ vector<T> W_rvs(T_max);
 vector<vector<T>> D_rvs(T_max, vector<T>(25));
 \end{lstlisting}
 
-\subsection{Implementation of the Transition Model}
+\subsection{Implement Model Factors}
+To ensure that the tracking solution computes the Maximum A Posteriori (MAP) trajectory rather than the marginal probabilities, the factors were instantiated with specific operators.
+During the construction of both transition and detection factors, specialised pointers for marginalization (\texttt{DiscreteTable\_MaxMarginalize}) and normalization (\texttt{DiscreteTable\_MaxNormalize}) were passed to the \texttt{DiscreteTable} (\texttt{DT}) constructor.
+By defining the factors this way, the functions called by the cluster graph change their behavior: the \texttt{marginalize()} operation performs maximisation instead of summation, and the \texttt{normalize()} operation scales the factor such that its maximum value is 1. 
+
+\subsubsection{Implementation of the Transition Factors}
 The transition model is implemented by iterating through each time step and constructing a transition factor $P(W^t \mid W^{t-1})$ 
 that connects every current state to its previous. The implentation logic follows a few key steps. Firstly, within each iteration of the temporal loop, 
 the unique IDs for the current and previous wumpus positions are retrieved from the \texttt{W\_rvs} vector. Because the grid is 
@@ -296,14 +301,14 @@ transitionProbs[{i, i}] = stay_prob;// Prob of wumpus staying in the same cell
 \end{lstlisting}
 
 A \texttt{std::map} is used to store only the non-zero probabililities to prevent creating a massive $25 \times 25$ table 
-with many zeros which consequently improves computational performance. These sparse entries are then used to instantiate an \texttt{emdw} Discrete Table (\texttt{DT}) called \texttt{ptrTransition}, which is then stored 
+with many zeros which consequently improves computational performance. These sparse entries are then used to instantiate an \texttt{emdw} \texttt{DT} called \texttt{ptrTransition}, which is then stored 
 in a vector of factor pointers for later use in the cluster graph.
 
 \begin{lstlisting}[language=C++, caption={Vector of transition factor pointers}, label={lst:transVector}]
 transitionFactors.push_back(ptrTransition);
 \end{lstlisting}
 
-\subsection{Implementation of the Detection Model}
+\subsubsection{Implementation of the Detection Factors}
 The relationship between the latent wumpus position and the observed detection data $P(\mathbf{D}^t \mid W^t)$
 is implemented through a nested looping structure that generates a detection factor for every cell at every time step.
 An outer loop is utilised to iterate through each time step $t$ and an inner loop to iterate through every 
@@ -343,13 +348,19 @@ These probabilities are used to instantiate DT factors which are then stored in 
 detectionFactors.push_back(ptrDetections);
 \end{lstlisting}
 
-\subsection{Construct Cluster Graph}
-
-
-1. Create factor to store all detection and transition factors
-2. Create a map to contain all observed RV values and load evidence from external files into obsv
-3. Create cluster graph with emdw
-4. perform message passing with emdw functionality
+\subsection{Cluster Graph Construction}
+This stage involves assembling the defined factors into a cluster graph to perform inference. 
+This process is handled using \texttt{emdw} functionality. Firstly, all factors are collected into a 
+single vector of pointers (\texttt{factorPtrs}), and an observation map (\texttt{obsv}) is created to store 
+all evidence of the observed RVs. The binary detection data is loaded from external dataset 
+files and mapped to the corresponding $D^t_{loc}$ variable IDs. This ensures that the 
+inference procedure is conditioned on the actual data provided in the datasets. 
+A \texttt{ClusterGraph} object is instantiated using the \texttt{BETHE} method which constructs
+a Junction Tree. The \texttt{loopyBP\_CG} function executes exact inference on the tree structure. 
+The result of MAP message passing is a set of max-marginal beliefs - one for each cluster. A max-marginal belief contains a likelihood value for each combination of RVs in
+the scope of its cluster. If there is a single most likely global combination of RVs, extracting this combination is
+easy: the most likely (local) combination of each max-marginal belief is consistent with the most likely global
+combination. The inference procedure results in the single most likely sequence of locations for the wumpus across all timesteps.
 
 \begin{lstlisting}[language=C++, caption={Cluster graph and message passing}, label={lst:cg}]
 ClusterGraph cg(ClusterGraph::BETHE, factorPtrs, obsv); 
@@ -357,6 +368,11 @@ map<Idx2, rcptr<Factor> > msgs;
 MessageQueue msgQ;
 unsigned nMsgs = loopyBP_CG(cg, msgs, msgQ);
 \end{lstlisting}
+
+\subsection{Extract MAP Estimates}
+
+
+
 
 Perform MAP inference on Wumpus location for all time steps and save results to file wumpus
 location1.txt
@@ -371,20 +387,6 @@ For every cell for time step t, we perform: to extract highest max marginal (wil
 Convert the bestCell index back to (row, col) and output to file wumpus\_location1.txt
 
 
-Notes to add - MAP inference:
-Specify operators to the factor, so that when marginalize() operator is called, maximisation occurs instead.
-Now, when you call the member function marginalize, it will perform maximisation instead, and when you call the member functions
-normalize and inplaceNormalize, it will perform normalisation appropriate for MAP inference (i.e., the
-factor will be scaled such that the maximum value is 1).
-
-Creating the factors this way, you can now
-perform MAP inference using exactly the same code as for marginal inference.
-
-The result of MAP message passing is a set of so-called max-marginal beliefs – one for each cluster (this is similar
-to the cluster beliefs of BP). A max-marginal belief contains a likelihood value for each combination of RVs in
-the scope of its cluster. If there is a single most likely global combination of RVs, extracting this combination is
-easy: the most likely (local) combination of each max-marginal belief is consistent with the most likely global
-combination
 
 
 for dataset 2:
