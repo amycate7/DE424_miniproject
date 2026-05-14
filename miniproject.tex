@@ -143,14 +143,18 @@ The model is illustrated below in Figure \ref{fig: BayesNet}.
 \end{figure}
  
 \subsubsection{Factor Definition}
-The model is governed by two primary factors. The first factor models the latent movement
+The model is governed by two primary factors. The first factor models the transition model of the wumpus over time as a first-oder Markov process $P(W^t \mid W^{t-1})$. 
+This factor captures the entity's movement across adjacent cells, where the wumpus attempts to move up, down, left, or right with an equal probability of 0.25 per direction. 
+To enforce the physical boundaries of the grid, the wumpus remains in its current position if it attempts to move outside the grid world. Consequently, 
+the probability of the wumpus remaining stationary ($P(W^t = i \mid W^{t-1} = i)$) is determined by its proximity to the boundaries:
+\begin{itemize}
+  \item Interior cells: The wumpus always moves to an adjacent cell with a probability of 0.25. Thus, the probability of remaining in place is 0.
+  \item Edge cells: With the wumpus having one direction blocked, the probability of remaining in place is 0.25.
+  \item Corner cells: With the wumpus having two blocked directions, the probability of remaining in place increases to 0.5.
+\end{itemize}
 
-
-Two factors are defined in this model. 
-Firstly, one to model the motion of the wumpus over time, $p(W^t|W^T-1)$. This factor captures the wumpus random movements to adjacent cells.
-The wumpus can only move up, down, left and right, each having a probability of 0.25. If it attempts to leave the boundary of the grid, it will remain in place. 
-Due to this, if the wumpus is on a cell bordering the boundary, it will have a 0.25 prob of remaining in place, and if wumpus is in a corner (can't move to two out of four directions),
-it has a prob of remaining in place = 0.5. This stochastic time dependent trajectory can be modelled by a transition matrix. In the case of a 5x5 grid, the resulting transition matrix is 25x25.
+For a $5 \times 5$ grid, the stochastic wumpus trajectory results in a sparse $25 \times 25$ transition matrix that ensures that the inferred wumpus movement 
+adheres to the constraints of the environment.
 
 \begin{table}[h]
 \centering
@@ -237,7 +241,7 @@ Description of how you processed the output of solution, the presentation of res
         \caption{Time $t=9$}
     \end{subfigure}
 
-    \caption{Dataset 1 tracking performance across select time steps. The grid displays binary detection data, where the \textbf{red dot} represents the ground-truth wumpus location and the \textbf{yellow star} represents the location inferred by the MAP algorithm.}
+    \caption{Dataset 1 tracking performance across select time steps. The grid displays binary detection data, where the \textbf{yellow star} represents the ground-truth wumpus location and the \textbf{red dot} represents the location inferred by the MAP algorithm.}
     \label{fig:dataset1_results}
 \end{figure}
 
