@@ -368,9 +368,7 @@ unsigned nMsgs = loopyBP_CG(cg, msgs, msgQ);
 
 \subsection{Extraction of the MAP Estimates}
 The result of MAP message passing is a set of max-marginal beliefs. The most likely local combination of each max-marginal belief is consistent with the most likely global
-combination. The inference procedure thus results in the single most likely sequence of locations for the wumpus across all timesteps. 
-
-For every time step $t$, the cluster graph is queried using \texttt{queryLBP\_CG} for the belief of the latent variable $W^t$. 
+combination. For every time step $t$, the cluster graph is queried using \texttt{queryLBP\_CG} for the belief of the latent variable $W^t$. 
 This belief represents the maximum joint probability of the entire sequence passing through that specific state at time $t$. 
 A nested loop then iterates through all possible grid cells to identify the cell that yields the highest value in the max-marginal factor. 
 This identifies the specific position, at that time step $t$, that belongs to the overall most likely trajectory. 
@@ -392,38 +390,27 @@ for (int row = 0; row < R; row++) {
 
 To facilitate the model evaluation phase, each inferred cell index is converted back into Cartesian $(x, y)$ 
 coordinates and exported to an external text file. Persisting the data in this manner ensures that the inferred 
-trajectory remains structurally consistent with the ground-truth datasets.
+trajectory remains structurally consistent with the ground-truth datasets. Once this process has been completed for every time step $t$,
+the inference procedure has identified the single most likely sequence of locations for the wumpus across all timesteps. 
 
+\subsection{Dataset 2}
 
-The resulting cell index is converted back into $(x, y)$ before being written to an 
-external text file. This persists the data for future model evaluation. This ensures that the inferred path's data structure is consistent with that of the 
-ground-truth's structure, which leads to the comparison of the inferred to be esaily done in the evlaution phase.
-
-Perform MAP inference on Wumpus location for all time steps and save results to file wumpus
-location1.txt
-rcptr<Factor> beliefT = queryLBP\_CG(cg, msgs, {W\_rvs[t]})->normalize(); // Query the graph
-For every cell for time step t, we perform: to extract highest max marginal (will = 1 in this case)
-            double likelihood = beliefT->potentialAt({W\_rvs[t]}, {(T)cell\_idx});
-
-            if (likelihood > max\_likelihood) {
-              max\_likelihood = likelihood;
-              best\_cell = cell\_idx;
-            }
-Convert the bestCell index back to (row, col) and output to file wumpus\_location1.txt
-
-
-
-
-for dataset 2:
 updated how to create locationDom
 updated all parameters (num\_cells) etc
 changed reading in data function to account for the different naming convention
 
-
-
-
+A brief description of how you processed the output of your solution, the presentation of your
+results, and an analysis thereof. You should report appropriate qualitative and quantitative results
+for all the datasets.
 \section{Analysis of Results}
-Description of how you processed the output of solution, the presentation of results and analysis thereof. Report both qualitative and quantitative results.
+Model performance is qualitatively assessed using a Python script to visualise the wumpus's path on the grid world. 
+The detection data is overlayed with the inferred trajectory and ground-truth data, allowing for a clear visual 
+comparison of the results. Figure \ref{fig:dataset1_results} displays these results for Dataset 1 at various time steps. 
+The corresponding visualisation for Dataset 2 is shown in Figure %\ref{fig:dataset2_results}, where the model scales to a larger environment.
+
+A Python script is used to create a graphical display of results, by importing the inferred wumpus trajectory, the ground truth trajectory and the observed detection data, 
+the grid world is visualised to see the results - the inferred vs actual wumpus location considering all the detection data. Figure \ref{fig:dataset1_results} illustrates 
+the visualisation for dataset 1 for select time steps. This is repeated in Figure for dataset 2. 
 
 \begin{figure}[htbp]
     \centering

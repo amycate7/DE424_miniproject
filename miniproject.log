@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2025.3.18)  14 MAY 2026 15:55
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2025.3.18)  14 MAY 2026 16:30
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -521,32 +521,32 @@ LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
 <d1t0.png, id=44, 521.69907pt x 482.55281pt>
 File: d1t0.png Graphic file (type png)
 <use d1t0.png>
-Package pdftex.def Info: d1t0.png  used on input line 433.
+Package pdftex.def Info: d1t0.png  used on input line 420.
 (pdftex.def)             Requested size: 140.92793pt x 130.3499pt.
 <d1t1.png, id=46, 523.20468pt x 481.04718pt>
 File: d1t1.png Graphic file (type png)
 <use d1t1.png>
-Package pdftex.def Info: d1t1.png  used on input line 439.
+Package pdftex.def Info: d1t1.png  used on input line 426.
 (pdftex.def)             Requested size: 140.92793pt x 129.56885pt.
 <d1t3.png, id=47, 509.65407pt x 476.53032pt>
 File: d1t3.png Graphic file (type png)
 <use d1t3.png>
-Package pdftex.def Info: d1t3.png  used on input line 445.
+Package pdftex.def Info: d1t3.png  used on input line 432.
 (pdftex.def)             Requested size: 140.92793pt x 131.76973pt.
 <d1t5.png, id=48, 518.6878pt x 465.23813pt>
 File: d1t5.png Graphic file (type png)
 <use d1t5.png>
-Package pdftex.def Info: d1t5.png  used on input line 454.
+Package pdftex.def Info: d1t5.png  used on input line 441.
 (pdftex.def)             Requested size: 140.92793pt x 126.40395pt.
 <d1t8.png, id=49, 517.18219pt x 482.55281pt>
 File: d1t8.png Graphic file (type png)
 <use d1t8.png>
-Package pdftex.def Info: d1t8.png  used on input line 460.
+Package pdftex.def Info: d1t8.png  used on input line 447.
 (pdftex.def)             Requested size: 140.92793pt x 131.49118pt.
 <d1t9.png, id=50, 513.41812pt x 472.76625pt>
 File: d1t9.png Graphic file (type png)
 <use d1t9.png>
-Package pdftex.def Info: d1t9.png  used on input line 466.
+Package pdftex.def Info: d1t9.png  used on input line 453.
 (pdftex.def)             Requested size: 140.92793pt x 129.76945pt.
  (miniproject.bbl [7 <./d1t0.png> <./d1t1.png> <./d1t3.png> <./d1t5.png> <./d1t8.png> <./d1t9.png>]) [8] (miniproject.aux)
  ***********
@@ -563,7 +563,7 @@ Here is how much of TeX's memory you used:
  1141 hyphenation exceptions out of 8191
  84i,10n,87p,495b,1701s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\amycm\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1000.pk><C:/Users/amycm/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Users/amycm/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Users/amycm/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Users/amycm/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi6.pfb><C:/Users/amycm/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi7.pfb><C:/Users/amycm/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/amycm/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi9.pfb><C:/Users/amycm/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/amycm/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/amycm/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Users/amycm/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr5.pfb><C:/Users/amycm/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr6.pfb><C:/Users/amycm/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Users/amycm/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/amycm/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr9.pfb><C:/Users/amycm/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/amycm/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy6.pfb><C:/Users/amycm/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/amycm/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy9.pfb><C:/Users/amycm/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmti10.pfb><C:/Users/amycm/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt10.pfb><C:/Users/amycm/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt9.pfb>
-Output written on miniproject.pdf (8 pages, 408533 bytes).
+Output written on miniproject.pdf (8 pages, 408096 bytes).
 PDF statistics:
  160 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
