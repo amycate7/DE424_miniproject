@@ -83,10 +83,10 @@ PGM design process followed a structured methodology: defining the random variab
 This process is detailed below for each attempted dataset.
 (note: this section must show model structure and show all factors. State and motivate all design choices)
 
-\subsubsection{Dataset 1}
+\subsection{Dataset 1}
 The initial model was designed for a 5 $\times$ 5 grid over a series of $T = 10$ time steps. In this case, 
 the parameters $p_w = 0.95$ and $p_c = 0.05$ are known constants.
-\subsection{Random Variable Definition}
+\subsubsection{Random Variable Definition}
 A critical design choice was made to represent the wumpus's location using a single latent RV, $W^t$, instead of seperate 
 $X^t$ and $Y^t$ coordinates. The grid is mapped to a 1-dimensional vector where each cell index $i \in \{0, \dots, 24\}$ 
 corresponds to a unique $(x,y)$ coordinate. This approach offers several advantages. Primarily, it enhances inference efficiency by reducing the total number of RVs within the 
@@ -154,7 +154,8 @@ the probability of the wumpus remaining stationary ($P(W^t = i \mid W^{t-1} = i)
 \end{itemize}
 
 For a $5 \times 5$ grid, the stochastic wumpus trajectory results in a sparse $25 \times 25$ transition matrix that ensures that the inferred wumpus movement 
-adheres to the constraints of the environment.
+adheres to the constraints of the environment. This transition factor is invariant across all time steps $t \in \{1, \dots, T\}$ since the wumpus's rules of movement 
+do not change as time progresses.
 
 \begin{table}[h]
 \centering
@@ -173,11 +174,14 @@ $W^{t-1}$ & $W^t$ & $P(W^t \mid W^{t-1})$ & \multicolumn{1}{c|}{\textbf{Descript
 \end{tabular}
 \end{table}
 
-Secondly, the other to model the probability of a cell detection conditioned on the wumpus location p($D_l^t|W^t$).
+Secondly, a factor that links the latent state $W^t$ to the observed grid-wide detection data $\mathbf{D}^t$ is designed $P(\mathbf{D}^t \mid W^t)$.
+This factor is parameterised by the detection probability $p_w$ and the clutter probability $p_c$, which accounts for sensor inaccuracies 
+across all cells in the grid. In the context of HMMs, this factor defines the likelihood of a specific observation being generated from a particular hidden state, 
+otherwise known as an emission probability. 
 
 \begin{table}[h]
 \centering
-\caption{Illustrative sample of the Observation Factor for a single cell $i$ at time $t$.}
+\caption{Illustrative sample of the Detection Factor for a single cell $i$ at time $t$.}
 \label{tab:observation_factor}
 \begin{tabular}{|c|c|c|l|}
 \hline
@@ -189,12 +193,30 @@ $j \neq i$ & 0  & $1 - p_c$ (0.95)    & True Negative (Correct Non-Detection)   
 \end{tabular}
 \end{table}
 
-Furthermore, because the resulting structure is a junction tree, the algorithm is guaranteed to reach exact inference in only two passes (forward and backward), ensuring maximum computational efficiency and faster overall runtime.
+\subsubsection{Cluster Graph and Inference}
+The topology of an HMM naturally forms an acyclic graph. (source). Due to this, the Bayesian Network as shown in Figure \ref{fig: BayesNet} is 
+converted to a Junction Tree cluster graph using the built-in functionality of the $\mathbf{emdw}$ library. 
+This structure guarantees exact inference through a single forward-backward message-passing schedule, resulting in a balance between 
+computational efficiency and inference accuracy. Due to the tree structure, the complexity scales linearly, $O(T)$, with the number of time steps. The factors are assigned as follows:
+\begin{itemize}
+  \item $P(W^t \mid W^{t-1})$ is assigned to a cluster with the scope $\{W^{t-1}, W^t\}$.
+  \item $P(\mathbf{D}^t \mid W^t)$ is assigned to a cluster with scope $\{W^t\}$. 
+\end{itemize}
 
+For the trajectory inference task, Maximum A Posteriori (MAP) inference using the Max-Product algorithm was selected over Marginal inference (belief-propagation algorithm).
 
+\subsection{Dataset 2}
+Extends upon dataset1 - we can see if model can expand for larger grid sizes.
+Dataset 2 uses a $20 \times 20$ grid.  This results in 400 possible states.  The transition factor for Dataset 2 will therefore be a $400 \times 400$ matrix. 
+ $O(T)$ scales.
 
 \section{Code Implementation}
 Discussion + code snippets
+
+
+Furthermore, because the resulting structure is a junction tree, the algorithm is guaranteed to reach exact inference in only two passes (forward and backward), ensuring maximum computational efficiency and faster overall runtime.
+
+
 
 \section{Analysis of Results}
 Description of how you processed the output of solution, the presentation of results and analysis thereof. Report both qualitative and quantitative results.
