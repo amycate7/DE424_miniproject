@@ -250,11 +250,102 @@ Dataset 2 uses a $20 \times 20$ grid.  This results in 400 possible states.  The
 
 \section{Code Implementation}
 \subsection{Dataset 1}
-RVs are defined W\_rvs and D\_rvs. 
+The model uses two primary vectors for RV management: \texttt{W\_rvs} for the latent wumpus positions 
+and \texttt{D\_rvs} for observed detections. Storing the random variable IDs in these vectors 
+allows efficient looping during the factor construction phase, as specific time dependent RVs ($W^{T-1}$ and $W^t$) can be accessed 
+directly via their vector indices. \texttt{D\_rvs} is a 2D vector, one RV for each time step and cell location.
 
-Factors are implemented:
-Transition factor: A vector is declared to store transition factors
+\begin{lstlisting}[language=C++, caption={Declaration of latent and observable random variable vectors.}, label={lst:rv_init}]
+vector<T> W_rvs(T_max); 
+vector<vector<T>> D_rvs(T_max, vector<T>(25));
+\end{lstlisting}
 
+
+\begin{lstlisting}[language=C++, caption={Transition factor initialisation.}, label={lst:transition_factor}]
+// Define possible grid moves (up, down, left, right)
+int dx[] = {0, 0, -1, 1};
+int dy[] = {1, -1, 0, 0};
+for (int move = 0; move < 4; move++) {
+  int new_x = x + dx[move]; // wumpus new x-coordinate
+  int new_y = y + dy[move]; // wumpus new y-coordinate
+  if (new_x >= 0 && new_x < width && new_y >=0 && new_y < width) {
+    // Valid transition 
+    int new_i = new_y * width + new_x; // Convert back to cell index
+    transitionProbs[{i, new_i}] = 0.25; 
+  } else {
+    // Invalid transition
+    stay_prob += 0.25; // Accumulate probability of staying in cell
+  }
+} 
+transitionProbs[{i, i}] = stay_prob;// Prob of wumpus staying in the same cell
+\end{lstlisting}
+
+
+\begin{lstlisting}[language=C++, caption={Detection factor initialisation.}, label={lst:observation_factor}]
+// loc is the location of the specific cell we are building a factor for
+for (int loc = 0; loc < num_cells; loc++) {
+  int D_curr = D_rvs[t][loc]; // Extract index of D RV at time t and grid location loc
+  map<vector<T>, FProb> detectionProbs;
+  // w_pos is the latent position of the wumpus 
+  for (int w_pos = 0; w_pos < num_cells; w_pos++){
+    if (w_pos == loc) {
+      // Detection location is equal to the wumpus position
+      detectionProbs[{1, w_pos}] = pw; // Detection
+      detectionProbs[{0, w_pos}] = 1.0 - pw;  // Missed detection
+    } else {
+      detectionProbs[{1, w_pos}] = pc; // Clutter 
+      detectionProbs[{0, w_pos}] = 1.0 - pc; // No detection
+    }
+  } // end of wumpus location loop
+}
+\end{lstlisting}
+
+
+1. Create factor to store all detection and transition factors
+2. Create a map to contain all observed RV values and load evidence from external files into obsv
+3. Create cluster graph with emdw
+4. perform message passing with emdw functionality
+
+\begin{lstlisting}[language=C++, caption={Cluster graph and message passing}, label={lst:cg}]
+ClusterGraph cg(ClusterGraph::BETHE, factorPtrs, obsv); 
+map<Idx2, rcptr<Factor> > msgs;
+MessageQueue msgQ;
+unsigned nMsgs = loopyBP_CG(cg, msgs, msgQ);
+\end{lstlisting}
+
+Perform MAP inference on Wumpus location for all time steps and save results to file wumpus
+location1.txt
+rcptr<Factor> beliefT = queryLBP\_CG(cg, msgs, {W\_rvs[t]})->normalize(); // Query the graph
+For every cell for time step t, we perform: to extract highest max marginal (will = 1 in this case)
+            double likelihood = beliefT->potentialAt({W\_rvs[t]}, {(T)cell\_idx});
+
+            if (likelihood > max\_likelihood) {
+              max\_likelihood = likelihood;
+              best\_cell = cell\_idx;
+            }
+Convert the bestCell index back to (row, col) and output to file wumpus\_location1.txt
+
+
+MAP inference:
+Specify operators to the factor, so that when marginalize() operator is called, maximisation occurs instead.
+Now, when you call the member function marginalize, it will perform maximisation instead, and when you call the member functions
+normalize and inplaceNormalize, it will perform normalisation appropriate for MAP inference (i.e., the
+factor will be scaled such that the maximum value is 1).
+
+Creating the factors this way, you can now
+perform MAP inference using exactly the same code as for marginal inference.
+
+The result of MAP message passing is a set of so-called max-marginal beliefs – one for each cluster (this is similar
+to the cluster beliefs of BP). A max-marginal belief contains a likelihood value for each combination of RVs in
+the scope of its cluster. If there is a single most likely global combination of RVs, extracting this combination is
+easy: the most likely (local) combination of each max-marginal belief is consistent with the most likely global
+combination
+
+
+for dataset 2:
+updated how to create locationDom
+updated all parameters (num\_cells) etc
+changed reading in data function to account for the different naming convention
 
 
 
