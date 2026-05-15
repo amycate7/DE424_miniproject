@@ -487,9 +487,10 @@ The corresponding visualisation for Dataset 2 and 3 is shown in Figure \ref{fig:
 While investigating the qualitative results of Dataset 3, a deviation from the ground truth for the first few time steps is revealed. 
 These errors suggest that the model's initial uncertainty is only resolved once the posterior probability peaks more sharply around the actual coordinates, leading to the consistent tracking seen in the last half of the simulation.
 
-\begin{figure}[htbp]
+\begin{figure}[p] % 'p' suggests putting it on its own dedicated results page
     \centering
-    % First Row
+
+    % --- DATASET 1 SECTION ---
     \begin{subfigure}[b]{0.3\textwidth}
         \centering
         \includegraphics[width=\textwidth]{d1t0.png}
@@ -507,10 +508,7 @@ These errors suggest that the model's initial uncertainty is only resolved once 
         \includegraphics[width=\textwidth]{d1t3.png}
         \caption{Time $t=3$}
     \end{subfigure}
-
-    \vspace{1em} % Space between rows
-
-    % Second Row
+    \\ \vspace{0.5em}
     \begin{subfigure}[b]{0.3\textwidth}
         \centering
         \includegraphics[width=\textwidth]{d1t5.png}
@@ -528,57 +526,54 @@ These errors suggest that the model's initial uncertainty is only resolved once 
         \includegraphics[width=\textwidth]{d1t9.png}
         \caption{Time $t=9$}
     \end{subfigure}
-
     \caption{Dataset 1 tracking performance across select time steps.}
     \label{fig:dataset1_results}
-\end{figure}
 
-\begin{figure}[htbp]
-    \centering
-    % Subfigure 1: t=0
-    \begin{subfigure}[b]{0.32\textwidth}
+    \vspace{1.5em} % Gap between Dataset 1 and 2
+
+    % --- DATASET 2 SECTION ---
+    \begin{subfigure}[b]{0.3\textwidth}
         \centering
         \includegraphics[width=\textwidth]{d2t0.png}
         \caption{Time $t=0$}
     \end{subfigure}
     \hfill
-    % Subfigure 2: t=9
-    \begin{subfigure}[b]{0.32\textwidth}
+    \begin{subfigure}[b]{0.3\textwidth}
         \centering
         \includegraphics[width=\textwidth]{d2t9.png}
         \caption{Time $t=9$}
     \end{subfigure}
     \hfill
-    % Subfigure 3: t=18
-    \begin{subfigure}[b]{0.32\textwidth}
+    \begin{subfigure}[b]{0.3\textwidth}
         \centering
         \includegraphics[width=\textwidth]{d2t18.png}
         \caption{Time $t=18$}
     \end{subfigure}
-
     \caption{Dataset 2 tracking performance on the $20 \times 20$ grid environment.}
     \label{fig:dataset2_results}
-\end{figure}
 
-\begin{figure}[htbp]
-    \centering
-    \begin{subfigure}[b]{0.48\textwidth}
+    \vspace{1.5em} % Gap between Dataset 2 and 3
+
+    % --- DATASET 3 SECTION ---
+    \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{d3t2.png}
         \caption{Time Step 2}
         \label{fig:step2}
     \end{subfigure}
     \hfill
-    \begin{subfigure}[b]{0.48\textwidth}
+    \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{d3t19.png}
         \caption{Time Step 19}
         \label{fig:step19}
     \end{subfigure}
-    \caption{Dataset 2 tracking performance on the $10 \times 20$ grid environment.}
+    \caption{Dataset 3 tracking performance on the $10 \times 20$ grid environment.}
     \label{fig:dataset3_comparison}
+
 \end{figure}
 
+\newpage 
 A quantitative evaluation is used to objectively analyse the performance and scalability of the models. The primary metrics utilised include: Accuracy, Neighbourhood Accuracy, 
 Root Mean Square Error and Mean Manhattan Distance (MMD). Accuracy represents the percentage of times steps where the inferred MAP location $W^t$ matches the ground-truth coordinates. 
 To quantify classification deviations, the RMSE was calculated to measure the average Euclidean distance between the predicted and actual positions. 
