@@ -448,7 +448,7 @@ the inference procedure has identified the single most likely sequence of locati
 \subsection{Scalability and Implementation: Dataset 2}
 Transitioning the implementation to Dataset 2 requires minimal changes due to the initial software design of Dataset 1. The model parameters were updated to 
 accomodate the larger environment, including the number of time steps ($T_{max}=20$), grid dimensions ($num\_cells=400$), and detection probabilities ($p_w=0.90, p_c=0.1$).
-The \texttt{locationDom} was expanded by iterating over 400 indices to accommodate the increased number of states. Importantly, the logic for factor construction, cluster graph creation, and MAP inference remained identical to the Dataset 1 implementation, 
+Importantly, the logic for factor construction, cluster graph creation, and MAP inference remained identical to the Dataset 1 implementation, 
 demonstrating the scalability of the model. Additionally, the evidence-loading function was refined with zero-padding logic to handle varying filenames (e.g., \texttt{data\_file001.txt} vs \texttt{data\_file010.txt}), 
 ensuring robust data ingestion for the extended timeline.
 
@@ -575,19 +575,15 @@ These errors suggest that the model's initial uncertainty is only resolved once 
 
 \newpage 
 A quantitative evaluation is used to objectively analyse the performance and scalability of the models. The primary metrics utilised include: Accuracy, Neighbourhood Accuracy, 
-Root Mean Square Error and Mean Manhattan Distance (MMD). Accuracy represents the percentage of times steps where the inferred MAP location $W^t$ matches the ground-truth coordinates. 
+Root Mean Square Error and Mean Manhattan Distance (MMD).  
 To quantify classification deviations, the RMSE was calculated to measure the average Euclidean distance between the predicted and actual positions. 
-\begin{equation}
-    RMSE = \sqrt{\frac{1}{T} \sum_{t=0}^{T-1} \left[ (x_t - \hat{x}_t)^2 + (y_t - \hat{y}_t)^2 \right]}
-    \label{eq:rmse}
-\end{equation}
 Neighborhood Accuracy and MMD obtain a more naunced understanding of the model's tracking ability, especially in the more complex environment of Dataset 2. The Neighborhood 
 Accuracy measures the percentage of time steps that infer the location within one grid step of the actual position. Since the classes represent a physical grid, an inference that 
 is one cell removed from the ground truth is more valuable than one on the other side of the map. Lastly, the MMD provides an intuitive error measurement that represents 
 the average number of moves separating the MAP estimate from the wumpus's true location.
 \begin{equation}
-    MMD = \frac{1}{T} \sum_{t=0}^{T-1} \left( |x_t - \hat{x}_t| + |y_t - \hat{y}_t| \right)
-    \label{eq:mmd}
+    RMSE = \sqrt{\frac{1}{T} \sum_{t=0}^{T-1} \left[ (x_t - \hat{x}_t)^2 + (y_t - \hat{y}_t)^2 \right]}, \quad MMD = \frac{1}{T} \sum_{t=0}^{T-1} \left( |x_t - \hat{x}_t| + |y_t - \hat{y}_t| \right)
+    \label{eq:metrics}
 \end{equation}
 
 \begin{table}[htbp]
@@ -622,6 +618,9 @@ EM algorithm determined the unknown sensor parameters, with $p_w$ and $p_c$ conv
 Thus, $p_w$ increased from the initial guess ($0.8 \rightarrow 0.815$), while $p_c$ decreased ($0.1 \rightarrow 0.076$). 
 This confirms that the EM algorithm learned that the wumpus detections are slightly more accurate and less noisy than originally assumed.
 
+{
+\footnotesize
 \bibliographystyle{ieeetr} % Or plain
 \bibliography{references} 
+}
 \end{document}
