@@ -104,10 +104,15 @@ can be explicitly set to zero within one factor. The RVs are defined as follows:
 \end{itemize}
 
 \subsubsection{Model Definition}
-The wumpus tracking task is formulated as a Hidden Markov Model (HMM), a framework used to infer a sequence of hidden states from observable outputs \cite{jurafsky2023hmm}.
-The latent trajectory of the wumpus ($W^0, W^1, \ldots, W^T$) is modeled as a first-order Markov process, $P(W^t \mid W^{t-1})$, where every future state depends on the current state, not on the sequence of states preceding it. 
-The observable detection variables are emissions that are generated from each state $p(D_l^t|W^t)$. A HMM is a subclass of Bayesian Networks, used for sequential data. 
-The model is illustrated below in Figure \ref{fig: BayesNet}.
+The wumpus tracking task is formulated as a Hidden Markov Model (HMM), a probabilistic framework 
+designed to infer a sequence of latent states from a series of observable outputs \cite{jurafsky2023hmm}. 
+The trajectory of the wumpus ($W^0, W^1, \ldots, W^T$) is modeled as a first-order Markov process, 
+defined by the transition probability $P(W^t \mid W^{t-1})$. This assumes the memoryless Markov property, 
+where the future state is independent of the past, given the current state. At each 
+time step, the observable detection variables are treated as emissions generated from the current 
+latent state, following the conditional distribution $P(\mathbf{D}^t \mid W^t)$. As a specific 
+subclass of Bayesian Networks that is optimised for modeling sequential data, the HMM structure effectively captures the temporal 
+dependencies of the wumpus's movement, as illustrated in the BN in Figure \ref{fig: BayesNet}.
 
 \begin{figure}[h]
     \centering
@@ -146,7 +151,7 @@ The model is illustrated below in Figure \ref{fig: BayesNet}.
 \end{figure}
  
 \subsubsection{Factor Definition}
-The model is governed by two primary factors. The first factor models the transition model of the wumpus over time as a first-oder Markov process $P(W^t \mid W^{t-1})$. 
+The model is governed by two primary factors. The first factor models the transition model of the wumpus over time as a first-order Markov process $P(W^t \mid W^{t-1})$. 
 This factor captures the entity's movement across adjacent cells, where the wumpus attempts to move up, down, left, or right with an equal probability of 0.25 per direction. 
 To enforce the physical boundaries of the grid, the wumpus remains in its current position if it attempts to move outside the grid world. Consequently, 
 the probability of the wumpus remaining stationary ($P(W^t = i \mid W^{t-1} = i)$) is determined by its proximity to the boundaries:
@@ -197,11 +202,11 @@ $j \neq i$ & 0  & $1 - p_c$ (0.95)    & True Negative (Correct Non-Detection)   
 \end{table}
 
 \subsubsection{Cluster Graph and Inference}
-The topology of an HMM naturally forms an acyclic graph. (source). Due to this, the Bayesian Network shown in Figure \ref{fig: BayesNet} is 
+The topology of an HMM naturally forms an acyclic graph. Due to this, the Bayesian Network (Figure \ref{fig: BayesNet}) is 
 converted to a Junction Tree cluster graph using the built-in functionality of the $\mathbf{emdw}$ library. 
 This structure guarantees exact inference through a single forward-backward message-passing schedule, resulting in a balance between 
-computational efficiency and inference accuracy. Due to the tree structure, the complexity scales linearly, $O(T)$, with the number of time steps. The factors and 
-cluster graph are shown below:
+computational efficiency and inference accuracy. Due to the tree structure, the time complexity scales linearly, $O(T)$, with the number of time steps. This cluster graph is shown 
+in Figure \ref{fig:optimized_jt} and the factors are assigned as follows: 
 \begin{itemize}
   \item $P(W^t \mid W^{t-1})$ is assigned to a cluster with the scope $\{W^{t-1}, W^t\}$.
   \item $P(\mathbf{D}^t \mid W^t)$ is assigned to a cluster with scope $\{W^t\}$. 
@@ -240,10 +245,10 @@ cluster graph are shown below:
     \label{fig:optimized_jt}
 \end{figure}
 
-For the trajectory inference task, Maximum A Posteriori (MAP) inference using the Max-Product algorithm was selected over Marginal inference. 
+For the trajectory inference task, Maximum A Posteriori (MAP) inference using the Max-Product algorithm was selected over Marginal inference with Belief Propagation (BP). 
 This choice is motivated by the fact that MAP inference computes the most likely trajectory ($W^0, W^1, \dots, W^T$) which results in a path that is globally consistent and adheres to 
-the wumpus's movement constraints as defined in the transition model. The MAP estimates represent a valid movement of the wumpus through the grid world. In contrast, Marginal inference using 
-the belief-propagation algorithm identifies the most likely cell for the wumpus at each discrete time step independently. This may lead to a sequence of locations that are infeasible if certain cells have 
+the wumpus's movement constraints as defined in the transition model. That is to say, the MAP estimates represent a valid movement of the wumpus through the grid world. In contrast, Marginal inference using 
+the BP algorithm identifies the most likely cell for the wumpus at each discrete time step independently. This may lead to a sequence of locations that are infeasible if certain cells have 
 high local probabilities.
 
 \subsection{Dataset 2}
@@ -258,8 +263,8 @@ For Dataset 3, the grid environment expands into a $10 \times 20$ grid with $T =
 $p_w$ and $p_c$ are unknown. An appropriate method to determine the parameters is the Expectation-Maximization (EM) algorithm. 
 The EM algorithm is an iterative method to estimate the parameters, $\Theta$, that maximise the data likelihood, $p(\mathbf{\mathcal{D} } | \Theta)$, subject to the presence of latent variables.
 The objective of the E-step is to perform inference on the hidden variables given the current estimate of the parameters, $\Theta$. 
-This is done by calculating the posterior distribution, $p(\mathcal{H}  | \mathbf{\mathcal{D}}, \Theta^{(t)})$, where $\mathcal{H} $ represents the latent variables. 
-The responsibilities $\gamma_t(i)$ form the marginal distribution over every grid cells at each time t:
+This is done by calculating the posterior distribution, $p(\mathcal{H}  | \mathbf{\mathcal{D}}, \Theta)$, where $\mathcal{H} $ represents the latent variables. 
+The responsibilities $\gamma_t(i)$ form the marginal distribution over every grid cells at each time $t$:
 
 \begin{equation}
 \gamma_t(i) \propto P(W_t = i) \cdot \underbrace{\left[ p_w^{D_{t,i}} (1-p_w)^{1-D_{t,i}} \right] \prod_{j \neq i} \left[ p_c^{D_{t,j}} (1-p_c)^{1-D_{t,j}} \right]}_{\text{Observation Likelihood } P(\mathbf{D}_t \mid W_t = i)}
