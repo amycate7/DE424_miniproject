@@ -42,7 +42,7 @@
 }
 
 % --- Document Information ---
-\title{Maximum A Posteriori (MAP) Inference for Scalable Wumpus Trajectory Tracking}
+\title{Maximum A Posteriori Inference for Wumpus Trajectory Tracking}
 \author{Amy McDermott (26911264)}
 
 \begin{document}
@@ -51,7 +51,12 @@
 \vspace*{-1.5cm}
 
 \section*{}
-I declare that this report is my own work. This report was written using LaTeX and thus Gemini was used to assist in certain formatting. This includes help to format code listings, mathematical equations and image display. The mathematical derivations and interpretation of results are my own work. 
+I declare that this report and the work presented within it are my own. 
+It has been developed with the support of the module coursework and provided lecture notes. 
+While the mathematical derivations, algorithmic logic, and interpretation of results are my own work, Gemini 
+was used to assist in achieving a professional document through technical LaTeX formatting. 
+This includes help with the layout of figures and tables, the formatting of mathematical equations and 
+code listings, as well as assistance in the implementation of the Python tool used for the animated visualisation of results.
 
 \section*{ECSA graduate attributes}
 Discuss how the GAs were assessed in the module + which parts of the report this is documented. State HOW and WHERE they were satisfied
@@ -254,59 +259,28 @@ $p_w$ and $p_c$ are unknown. An appropriate method to determine the parameters i
 The EM algorithm is an iterative method to estimate the parameters, $\Theta$, that maximise the data likelihood, $p(\mathbf{\mathcal{D} } | \Theta)$, subject to the presence of latent variables.
 The objective of the E-step is to perform inference on the hidden variables given the current estimate of the parameters, $\Theta$. 
 This is done by calculating the posterior distribution, $p(\mathcal{H}  | \mathbf{\mathcal{D}}, \Theta^{(t)})$, where $\mathcal{H} $ represents the latent variables. 
-Derivations resulted in the following equations: 
+The responsibilities $\gamma_t(i)$ form the marginal distribution over every grid cells at each time t:
 
 \begin{equation}
-    q(W_t) = P(W_t \mid \mathbf{D}, \theta) =
-    \begin{bmatrix} 
-        \gamma_t(0) \\
-        \vdots \\
-        \gamma_t(N-1)
-    \end{bmatrix}
-\end{equation}
-Where the responsibilities $\gamma_t(i)$ are defined as: 
-\begin{equation}
-    P(\mathbf{D}_t \mid W_t = i) = \left[ p_w^{D_{t,i}} (1-p_w)^{1-D_{t,i}} \right] \prod_{j \neq i} \left[ p_c^{D_{t,j}} (1-p_c)^{1-D_{t,j}} \right]
-    \label{eq:obs_params}
+\gamma_t(i) \propto P(W_t = i) \cdot \underbrace{\left[ p_w^{D_{t,i}} (1-p_w)^{1-D_{t,i}} \right] \prod_{j \neq i} \left[ p_c^{D_{t,j}} (1-p_c)^{1-D_{t,j}} \right]}_{\text{Observation Likelihood } P(\mathbf{D}_t \mid W_t = i)}
+\label{eq:gamma_short}
 \end{equation}
 
-\begin{equation}
-    \gamma_t(i) = \frac{P(\mathbf{D}_t \mid W_t=i, \theta) \cdot P(W_t=i)}{\sum_{j=0}^{N-1} P(\mathbf{D}_t \mid W_t=j, \theta) \cdot P(W_t=j)}
-    \label{eq:gamma_update}
-\end{equation}
-
-
-The distribution over the entire latent trajectory is thus:
-\begin{equation}
-    q(\mathcal{H}) = \prod_{t=0}^{T-1} q(W_t) = \prod_{t=0}^{T-1} P(W_t \mid \mathbf{D}, \theta)
-\end{equation}
-
-The M-step aims to update the parameters to maximise the auxiliary function, $Q(\Theta)$.
+The M-step aims to update the parameters to maximise the auxiliary function, $Q(\Theta)$. After some mathematical manipulations, the 
+auxiliary function results in Equation \ref{eq:q_function}.
 \begin{equation}
 \Theta^{\text{new}} = \arg \max_{\Theta} \mathcal{Q}(\Theta)
 \end{equation}
-To determine the update step for all the model parameters, the partial derivative of Equation \ref{eq:q_function} is taken with respect to each parameter and set to zero. 
-This results in the update equations \ref{eq:m_step_pw} and \ref{eq:m_step_pc}. 
 \begin{equation}
     \mathcal{Q}(\Theta) = \sum_{t,i} \gamma_t(i) \left[ D_{t,i} \log p_w + (1-D_{t,i}) \log(1-p_w) + \sum_{j \neq i} (D_{t,j} \log p_c + (1-D_{t,j}) \log(1-p_c)) \right]
     \label{eq:q_function}
 \end{equation}
-
+To determine the update step for all model parameters, the partial derivative of Equation \ref{eq:q_function} is taken with respect to each parameter and set to zero. 
+This results in the update equations shown in \ref{eq:m_step_final}, where $S_t = \sum D_{t,i}$ is the total detection count across the entire $10 \times 20$ grid at time step $t$.
 \begin{equation}
-    \hat{p}_w = \frac{1}{T} \sum_{t=0}^{T-1} \sum_{i=0}^{N-1} \gamma_t(i) D_{t,i}
-    \label{eq:m_step_pw}
+    \hat{p}_w = \frac{1}{T} \sum_{t=0}^{T-1} \sum_{i=0}^{N-1} \gamma_t(i) D_{t,i}, \quad \hat{p}_c = \frac{\sum_{t=0}^{T-1} \sum_{i=0}^{N-1} \gamma_t(i) (S_t - D_{t,i})}{T(N-1)}
+    \label{eq:m_step_final}
 \end{equation}
-
-\begin{equation}
-    \hat{p}_c = \frac{\sum_{t=0}^{T-1} \sum_{i=0}^{N-1} \gamma_t(i) \left( S_t - D_{t,i} \right)}{T(N-1)}
-    \label{eq:m_step_pc}
-\end{equation}
-
-\begin{equation}
-    S_t = \sum_{j=0}^{N-1} D_{t,j}
-\end{equation}
-
-Where, $S_t$ is the total number of detections recorded across the entire $10 \times 20$ grid at time step $t$.
 
 \section{Code Implementation}
 \subsection{Random Variables Definition}
@@ -465,11 +439,11 @@ The implementation of the EM algorithm to estimate the unknown detection paramet
 around an interative convergence loop that alternates between inference and parameter refinement. 
 Firstly, the parameters are initialised intuitively with the values $p_w = 0.8$ and $p_c = 0.1$, representing a guess of high detection accuracy and low noise.
 In the E-step, \texttt{emdw} functionality performs belief propagation using the message-passing algorithm with \texttt{SumMarginalize} operators to calculate 
-the responsibilities $\gamma_t(i)$ for each state. $\gamma_t(i)$ is a soft assignment that determines how likely 
+the responsibilities $\gamma_t(i)$ for each state, as defined in Equation \ref{eq:gamma_short}. $\gamma_t(i)$ is a soft assignment that determines how likely 
 it is that the Wumpus is in cell $i$ at time $t$. A key efficiency in the implementation was constructing the transition factors once outside the loop, as they do not depend on the model parameters, 
 and simply adding them to the \texttt{factorPtr} during each EM iteration.
 
-The M-step updates $p_w$ and $p_c$ based on the equations \ref{eq:m_step_pw} and \ref{eq:m_step_pc} using the computed E-step beliefs. 
+The M-step updates $p_w$ and $p_c$ based on Equations \ref{eq:m_step_final} using the computed E-step beliefs. 
 Specifically, the numerator for $p_w$ is calculated as the sum of beliefs at locations where a detection actually occurred, while the numerator for $p_c$ represents the weighted sum of false detections (all detections in the grid excluding the wumpus's likely location). 
 \begin{lstlisting}[language=C++, caption={M-step: Parameter update step.}, label={lst:mstep}]
 for (int i = 0; i < num_cells; i++) {
@@ -627,12 +601,11 @@ wumpus's location, the prediction still remained in the spatial proximity of the
 
 While Dataset 3 presents the most challenging tracking scenario, the model still achieves a 75.00\% accuracy. The Neighborhood Accuracy of 80.00\% suggests that 
 even when the model misses the exact cell, it remains within one unit of the true location the majority of the time. This 
-is further confirmed by the RMSE of 1.0488 and Mean Manhattan Distance (MMD) of 0.60, indicating that deviations are generally small and localised.
+is further confirmed by the RMSE of 1.0488 and MMD of 0.60, indicating that deviations are generally small and localised.
 Finally, in evaluating the Dataset 3 parameter estimation, it is observed that the 
 EM algorithm determined the unknown sensor parameters, with $p_w$ and $p_c$ converging to $0.8154$ and $0.0761$, respectively, within 7 iterations. 
 Thus, $p_w$ increased from the initial guess ($0.8 \rightarrow 0.815$), while $p_c$ decreased ($0.1 \rightarrow 0.076$). 
 This confirms that the EM algorithm learned that the wumpus detections are slightly more accurate and less noisy than originally assumed.
-
 
 \bibliographystyle{ieeetr} % Or plain
 \bibliography{references} 
