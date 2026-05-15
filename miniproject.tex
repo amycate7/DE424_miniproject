@@ -460,15 +460,42 @@ The \texttt{locationDom} was expanded by iterating over 400 indices to accommoda
 demonstrating the scalability of the model. Additionally, the evidence-loading function was refined with zero-padding logic to handle varying filenames (e.g., \texttt{data\_file001.txt} vs \texttt{data\_file010.txt}), 
 ensuring robust data ingestion for the extended timeline.
 
+\subsection{Dataset 3: EM Implementation and Parameter Estimation}
+The implementation of the EM algorithm to estimate the unknown detection parameters $p_w$ and $p_c$ for Dataset 3 is structured 
+around an interative convergence loop that alternates between inference and parameter refinement. 
+Firstly, the parameters are intialised intuitively with the values $p_w = 0.8$ and $p_c = 0.1$, representing a guess of high detection accuracy and low noise.
+In the E-step, \texttt{emdw} functionality performs belief propagation using the message-passing algorithm with \textit{SumMarginalize} operators to calculate 
+the responsibilities $\gamma_t(i)$ for each state. A key efficiency in the implementation was constructing the transition factors once outside the loop, as they do not depend on the model parameters, 
+and simply adding them to the \texttt{factorPtr} during each iteration.
+
+The M-step updates $p_w$ and $p_c$ based on the resulting E-step beliefs following equations \ref{eq:m_step_pw} and \ref{eq:m_step_pc}. 
+Specifically, the numerator for $p_w$ is calculated as the sum of beliefs at locations where a detection actually occurred, while the numerator for $p_c$ represents the weighted sum of false detections (all detections in the grid excluding the wumpus's likely location). 
+\begin{lstlisting}[language=C++, caption={Declaration of latent and observable random variable vectors.}, label={lst:rv_init}]
+for (int i = 0; i < num_cells; i++) {
+  double gamma_ti = beliefT->potentialAt({W_rvs[t]}, {(T)i});
+  int Y_ti = ((int)obsv[D_rvs[t][i]] == 1) ? 1 : 0;
+  if (Y_ti) pw_num += gamma_ti; 
+    pc_num += gamma_ti * (St - Y_ti); 
+  }
+pw = pw_num / T_max; // Updated pw
+pc = pc_num / (T_max * (num_cells - 1)); // Updated pc
+\end{lstlisting}
+It is critical to note that Belief Propogation is used to determine the marginals during the EM phase rather than max-marginals. 
+Only once the parameters converged is the MAP approach applief to the final cluster graph (with estimated $p_w$ and $p_c$ parameters) to extract the globally consistent wumpus trajectory.
+
 \subsection{Dataset 3}
-Use Belief Prop not MAP - only MAP at the end (after param converged).
-set initial param estimates
-A convergence loop is included - where the E-step that runs the emdw message passing algorithm 
+set initial param estimates, pw = 0.8 and pc = 0.1 (intuitive guess of sensor accuracy).
+
+
+A convergence loop is included - where the E-step that runs the emdw message passing algorithm each iteration 
 with SumMarginalize operators; and the M-step which updates pw and pc on the resulting beliefs (responsibilities)
+
+Use Belief Prop not MAP  for EM - only MAP at the end (after param converged) to obtain the globally consisten wumpus trajectory.
+
 
 Critical implementatino details include: the belief propogation algorithm is used to determine marginals not max-marginals in the EM procedure .
 Transition prob factor does not depend on params, therefore transitionFactors is constructed once outside the loop and is simply added to the factorPtr in each E-step iteration.
-The M-step logic is implemented as shown in eqn x and eqn y where the numerator for pw: 
+The M-step logic is implemented as shown in eqn \ref and eqn \ref where the numerator for pw: 
 is the sum of beliefs at the locations where a detection actually occurred.The Numerator for $p_c$ is the weighted sum of "false detections" (all other detections in the grid besides the one at the wumpus's likely location).
 
 Once params have converged - this happens
