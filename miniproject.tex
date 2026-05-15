@@ -59,16 +59,18 @@ This includes help with the layout of figures and tables, the formatting of math
 code listings, as well as assistance in the implementation of the Python tool used for the animated visualisation of results.
 
 \section*{ECSA graduate attributes}
-Discuss how the GAs were assessed in the module + which parts of the report this is documented. State HOW and WHERE they were satisfied
-This section may (and should) be brief, but should discuss all aspects of the GAs being
-assessed. For example, GA1 partially assesses your ability to research literature as part of problem solving, which
-means that your report must mention and cite (at least) a few sources - can include prescribed resources.
-Please consult the module framework for a more detailed description of these two GAs as well as how they are
-assessed in this module.
+
 \subsection*{GA 1: Problem solving}
+This attribute was met through the formulation (Section \ref{sec:prob} and \ref{sec:solDesign}), implementation (Section \ref{sec:implementation}) and resolution (Section \ref{sec:concl}) of the wumpus 
+tracking task. The problem was first analysed by identifying the complexities of the stochastic movement and unreliable detection data. 
+Thereafter, the ability to research literature is demonstrated by incorporating Hidden Markov Model frameworks to model the latent trajectory (Section \ref{sec:modelDesign}). 
+Substantiated conclusions (Section \ref{sec:concl}) were reached through the implementation of a PGM solution from first principles (Section \ref{sec:solDesign}) as well as an EM algorithm (Section \ref{sec:EM}) to estimate unknown parameters ($p_w, p_c$), 
+rather than relying on point estimates.
+
 \subsection*{GA 2: Application of scientific and engineering knowledge}
 
 \section{Problem Description}
+\label{sec:prob}
 This project addresses an object tracking task within a discrete grid world inhabited by a latent entity known as a wumpus. The objective is to determine the trajectory 
 of the wumpus across multiple time steps based on inaccurate measurements. At each time step the wumpus attempts to move to an adjacent cell (up, down, left, or right) 
 with equal probability. If the target cell is within the grid boundaries, the wumpus transitions to that location; otherwise it remains in its current position. The 
@@ -82,6 +84,7 @@ Given the stochastic grid detection data across multiple time steps, the task is
 This involves constructing a model that accurately captures the wumpus's transition and observation logic to infer it's latent trajectory across various datasets. 
 
 \section{Solution Design}
+\label{sec:solDesign}
 The solution was developed iteratively to accomodate the increasing complexity and varying characteristics of each dataset. The 
 PGM design process followed a structured methodology: defining the random variables, defining the model, and constructing the model factors. 
 This process is detailed below for each attempted dataset.
@@ -104,6 +107,7 @@ can be explicitly set to zero within one factor. The RVs are defined as follows:
 \end{itemize}
 
 \subsubsection{Model Definition}
+\label{sec:modelDesign}
 The wumpus tracking task is formulated as a Hidden Markov Model (HMM), a probabilistic framework 
 designed to infer a sequence of latent states from a series of observable outputs \cite{jurafsky2023hmm}. 
 The trajectory of the wumpus ($W^0, W^1, \ldots, W^T$) is modeled as a first-order Markov process, 
@@ -288,6 +292,7 @@ This results in the update equations shown in \ref{eq:m_step_final}, where $S_t 
 \end{equation}
 
 \section{Code Implementation}
+\label{sec:implementation}
 \subsection{Random Variables Definition}
 The model uses two primary vectors for RV management: \texttt{W\_rvs} for the latent wumpus positions 
 and \texttt{D\_rvs} for observed detections. Storing the random variable IDs in these vectors 
@@ -440,6 +445,7 @@ demonstrating the scalability of the model. Additionally, the evidence-loading f
 ensuring robust data ingestion for the extended timeline.
 
 \subsection{Dataset 3: EM Implementation and Parameter Estimation}
+\label{sec:EM}
 The implementation of the EM algorithm to estimate the unknown detection parameters $p_w$ and $p_c$ for Dataset 3 is structured 
 around an interative convergence loop that alternates between inference and parameter refinement. 
 Firstly, the parameters are initialised intuitively with the values $p_w = 0.8$ and $p_c = 0.1$, representing a guess of high detection accuracy and low noise.
@@ -464,6 +470,7 @@ It is critical to note that Belief Propogation is used to determine the marginal
 Only once the parameters converged is the MAP approach applied to the final cluster graph (with estimated $p_w$ and $p_c$ parameters) to extract the globally consistent wumpus trajectory.
 
 \section{Analysis of Results}
+\label{sec:concl}
 Model performance is qualitatively assessed using a Python script to visualise the wumpus's path on the grid world. 
 The script uses command-line arguments to switch between datasets, automatically adjusting the grid dimensions and file paths for Datasets 1, 2, and 3.
 The detection data is overlayed with the inferred trajectory and ground-truth data, allowing for a clear visual 
