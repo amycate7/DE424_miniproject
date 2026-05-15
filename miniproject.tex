@@ -213,10 +213,10 @@ $j \neq i$ & 0  & $1 - p_c$ (0.95)    & True Negative (Correct Non-Detection)   
 \end{table}
 
 \subsubsection{Cluster Graph and Inference}
-The topology of an HMM naturally forms an acyclic graph. Due to this, the Bayesian Network (Figure \ref{fig: BayesNet}) is 
+The topology of an HMM naturally forms an acyclic graph \cite{barber2012bayesian}. Due to this, the Bayesian Network (Figure \ref{fig: BayesNet}) is 
 converted to a Junction Tree cluster graph using the built-in functionality of the $\mathbf{emdw}$ library. 
 This structure guarantees exact inference through a single forward-backward message-passing schedule, resulting in a balance between 
-computational efficiency and inference accuracy. Due to the tree structure, the time complexity scales linearly, $O(T)$, with the number of time steps. This cluster graph is shown 
+computational efficiency and inference accuracy. Due to the tree structure, the time complexity scales linearly, $O(T)$, with the number of time steps \cite{barber2012bayesian}. This cluster graph is shown 
 in Figure \ref{fig:optimized_jt} and the factors are assigned as follows: 
 \begin{itemize}
   \item $P(W^t \mid W^{t-1})$ is assigned to a cluster with the scope $\{W^{t-1}, W^t\}$.
@@ -258,8 +258,8 @@ in Figure \ref{fig:optimized_jt} and the factors are assigned as follows:
 
 For the trajectory inference task, Maximum A Posteriori (MAP) inference using the Max-Product algorithm was selected over Marginal inference with Belief Propagation (BP). 
 This choice is motivated by the fact that MAP inference computes the most likely trajectory ($W^0, W^1, \dots, W^T$) which results in a path that is globally consistent and adheres to 
-the wumpus's movement constraints as defined in the transition model. That is to say, the MAP estimates represent a valid movement of the wumpus through the grid world. In contrast, Marginal inference using 
-the BP algorithm identifies the most likely cell for the wumpus at each discrete time step independently. This may lead to a sequence of locations that are infeasible if certain cells have 
+the wumpus's movement constraints as defined in the transition model. That is to say, the MAP estimates represent a valid movement of the wumpus through the grid world \cite{dupreez2026MAP}. In contrast, Marginal inference using 
+the BP algorithm identifies the most likely cell for the wumpus at each discrete time step independently \cite{dupreez2026BP}. This may lead to a sequence of locations that are infeasible if certain cells have 
 high local probabilities.
 
 \subsection{Dataset 2}
@@ -272,7 +272,7 @@ complexity remains linear $O(T)$ and the computational resources (time or memory
 \subsection{Dataset 3}
 \label{sec:EMderiv}
 For Dataset 3, the grid environment expands into a $10 \times 20$ grid with $T = 20$ timesteps. Furthermore, the model parameters 
-$p_w$ and $p_c$ are unknown. An appropriate method to determine the parameters is the Expectation-Maximization (EM) algorithm. 
+$p_w$ and $p_c$ are unknown. An appropriate method to determine the parameters is the Expectation-Maximization (EM) algorithm \cite{dupreez2026PARAM}. 
 The EM algorithm is an iterative method to estimate the parameters, $\Theta$, that maximise the data likelihood, $p(\mathbf{\mathcal{D} } | \Theta)$, subject to the presence of latent variables.
 The objective of the E-step is to perform inference on the hidden variables given the current estimate of the parameters, $\Theta$. 
 This is done by calculating the posterior distribution, $p(\mathcal{H}  | \mathbf{\mathcal{D}}, \Theta)$, where $\mathcal{H} $ represents the latent variables. 
@@ -455,7 +455,7 @@ ensuring robust data ingestion for the extended timeline.
 \subsection{Dataset 3: EM Implementation and Parameter Estimation}
 \label{sec:EM}
 The implementation of the EM algorithm to estimate the unknown detection parameters $p_w$ and $p_c$ for Dataset 3 is structured 
-around an interative convergence loop that alternates between inference and parameter refinement. 
+around an interative convergence loop that alternates between inference and parameter refinement \cite{dupreez2026PARAM}. 
 Firstly, the parameters are initialised intuitively with the values $p_w = 0.8$ and $p_c = 0.1$, representing a guess of high detection accuracy and low noise.
 In the E-step, \texttt{emdw} functionality performs belief propagation using the message-passing algorithm with \texttt{SumMarginalize} operators to calculate 
 the responsibilities $\gamma_t(i)$ for each state, as defined in Equation \ref{eq:gamma_short}. $\gamma_t(i)$ is a soft assignment that determines how likely 

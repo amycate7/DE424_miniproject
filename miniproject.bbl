@@ -5,4 +5,27 @@ D.~Jurafsky and J.~H. Martin, {\em Hidden Markov Models}.
 \newblock 2023.
 \newblock Appendix A.
 
+\bibitem{barber2012bayesian}
+D.~Barber, {\em Bayesian Reasoning and Machine Learning}.
+\newblock Cambridge, UK: Cambridge University Press, 2012.
+\newblock Available online.
+
+\bibitem{dupreez2026MAP}
+J.~du~Preez and C.~van Daalen, ``Week 6: Inference - {MAP} inference: Overview,
+  resources and notes.'' Data Engineering 424 Coursework, Stellenbosch
+  University, 2026.
+\newblock Accessed via module material.
+
+\bibitem{dupreez2026BP}
+J.~du~Preez and C.~van Daalen, ``Week 4: Inference — variable elimination and
+  belief propagation: Overview, resources and notes.'' Data Engineering 424
+  Coursework, Stellenbosch University, 2026.
+\newblock Accessed via module material.
+
+\bibitem{dupreez2026PARAM}
+J.~du~Preez and C.~van Daalen, ``Week 10: Learning - with latent random
+  variables: Overview, resources and notes.'' Data Engineering 424 Coursework,
+  Stellenbosch University, 2026.
+\newblock Accessed via module material.
+
 \end{thebibliography}
