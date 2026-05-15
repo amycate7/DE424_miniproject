@@ -64,10 +64,17 @@ code listings, as well as assistance in the implementation of the Python tool us
 This attribute was met through the formulation (Section \ref{sec:prob} and \ref{sec:solDesign}), implementation (Section \ref{sec:implementation}) and resolution (Section \ref{sec:concl}) of the wumpus 
 tracking task. The problem was first analysed by identifying the complexities of the stochastic movement and unreliable detection data. 
 Thereafter, the ability to research literature is demonstrated by incorporating Hidden Markov Model frameworks to model the latent trajectory (Section \ref{sec:modelDesign}). 
-Substantiated conclusions (Section \ref{sec:concl}) were reached through the implementation of a PGM solution from first principles (Section \ref{sec:solDesign}) as well as an EM algorithm (Section \ref{sec:EM}) to estimate unknown parameters ($p_w, p_c$), 
+Substantiated conclusions (Section \ref{sec:concl}) were reached through the implementation of a Probabilistic Graphical Model (PGM) solution from first principles (Section \ref{sec:solDesign}) as well as an EM algorithm (Section \ref{sec:EM}) to estimate unknown parameters ($p_w, p_c$), 
 rather than relying on point estimates.
 
 \subsection*{GA 2: Application of scientific and engineering knowledge}
+This GA was satisfied by applying knowledge of probability theory and 
+PGMs to solve a latent entity tracking task. Specifically, the PGM formulation is described in Section \ref{sec:modelDesign}, and detailed mathematical formulations, including the E-step responsibilities and 
+M-step update equations, are documented in Section \ref{sec:EMderiv}. Furthermore, the Sum-Product algorithm for marginal inference 
+was used during the parameter estimation phase and thereafter the Max-Sum (MAP) algorithm for inference to 
+obtain a globally consistent trajectory (Section \ref{sec:EM}). The application of these mathematical frameworks 
+allowed for the successful tracking of a latent entity across different environmental 
+contexts (Section \ref{sec:concl}).
 
 \section{Problem Description}
 \label{sec:prob}
@@ -263,6 +270,7 @@ larger grid sizes efficiently without a drastic computational cost. Despite the 
 complexity remains linear $O(T)$ and the computational resources (time or memory) scale proportionally with the size $T$.
 
 \subsection{Dataset 3}
+\label{sec:EMderiv}
 For Dataset 3, the grid environment expands into a $10 \times 20$ grid with $T = 20$ timesteps. Furthermore, the model parameters 
 $p_w$ and $p_c$ are unknown. An appropriate method to determine the parameters is the Expectation-Maximization (EM) algorithm. 
 The EM algorithm is an iterative method to estimate the parameters, $\Theta$, that maximise the data likelihood, $p(\mathbf{\mathcal{D} } | \Theta)$, subject to the presence of latent variables.
