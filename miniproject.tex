@@ -248,6 +248,60 @@ The parameters for this environment are defined as $p_w = 0.9$ and $p_c = 0.1$. 
 larger grid sizes efficiently without a drastic computational cost. Despite the increased dimensionality, the Junction Tree structure remains. Consequently, the time 
 complexity remains linear $O(T)$ and the computational resources (time or memory) scale proportionally with the size $T$.
 
+\subsection{Dataset 3}
+For Dataset 3, the grid environment expands into a $10 \times 20$ grid with $T = 20$ timesteps. Furthermore, the model parameters 
+$p_w$ and $p_c$ are unknown. An appropriate method to determine the parameters is the Expectation-Maximization (EM) algorithm. 
+The EM algorithm is an iterative method to estimate the parameters, $\Theta$, that maximise the data likelihood, $p(\mathbf{\mathcal{D} } | \Theta)$, subject to the presence of latent variables.
+The objective of the E-step is to perform inference on the hidden variables given the current estimate of the parameters, $\Theta$. 
+This is done by calculating the posterior distribution, $p(\mathcal{H}  | \mathbf{\mathcal{D}}, \Theta^{(t)})$, where $\mathcal{H} $ represents the latent variables. 
+
+\begin{equation}
+    q(W_t) = P(W_t \mid \mathbf{D}, \theta) = 
+    \begin{bmatrix} 
+        \gamma_t(0) \\
+        \vdots \\
+        \gamma_t(N-1)
+    \end{bmatrix}
+\end{equation}
+
+\begin{equation}
+    \gamma_t(i) = \frac{P(\mathbf{D}_t \mid W_t=i, \theta) \cdot \psi(W_t=i)}{\sum_{j=0}^{N-1} P(\mathbf{D}_t \mid W_t=j, \theta) \cdot \psi(W_t=j)}
+    \label{eq:gamma_update}
+\end{equation}
+
+\begin{equation}
+    q(\mathbf{W}) = \prod_{t=0}^{T-1} q(W_t) = \prod_{t=0}^{T-1} P(W_t \mid \mathbf{D}, \theta)
+\end{equation}
+As derived, the E-step can be implemented as follows:
+\begin{equation}
+    P(\mathbf{D}_t \mid W_t = i) = P(D_{t,i} \mid W_t = i) \prod_{j \neq i} P(D_{t,j} \mid W_t = i)
+    \label{eq:obs_general}
+\end{equation}
+
+\begin{equation}
+    P(\mathbf{D}_t \mid W_t = i) = \left[ p_w^{D_{t,i}} (1-p_w)^{1-D_{t,i}} \right] \prod_{j \neq i} \left[ p_c^{D_{t,j}} (1-p_c)^{1-D_{t,j}} \right]
+    \label{eq:obs_params}
+\end{equation}
+
+\begin{equation}
+    \mathcal{Q}(\Theta), \Theta^{(t)}) = \sum_{t,i} \gamma_t(i) \left[ D_{t,i} \log p_w + (1-D_{t,i}) \log(1-p_w) + \sum_{j \neq i} (D_{t,j} \log p_c + (1-D_{t,j}) \log(1-p_c)) \right]
+    \label{eq:q_function}
+\end{equation}
+Where the responsibilities $\gamma_t(i)$ are defined as: 
+\begin{equation}
+    \gamma_t(i) = P(W_t = i \mid \mathbf{D}_{1:T}, \theta)
+    \label{eq:gamma_def}
+\end{equation}
+
+The M-step aims to update the parameters to maximise the auxiliary function, $Q(\Theta)$.
+\begin{equation}
+\Theta^{\text{new}} = \arg \max_{\Theta} \mathcal{Q}(\Theta)
+\end{equation}
+The following simplifications are shown in the practical notes:
+\begin{align}
+\mathcal{Q}(\Theta) &= \sum_{\mathcal{H}} q(\mathcal{H}) \log p(\mathcal{D}, \mathcal{H} | \Theta) \label{eq:objective}
+\end{align}
+
 \section{Code Implementation}
 \subsection{Random Variables Definition}
 The model uses two primary vectors for RV management: \texttt{W\_rvs} for the latent wumpus positions 
