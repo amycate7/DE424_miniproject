@@ -461,12 +461,26 @@ demonstrating the scalability of the model. Additionally, the evidence-loading f
 ensuring robust data ingestion for the extended timeline.
 
 \subsection{Dataset 3}
+Use Belief Prop not MAP - only MAP at the end (after param converged).
+set initial param estimates
+A convergence loop is included - where the E-step that runs the emdw message passing algorithm 
+with SumMarginalize operators; and the M-step which updates pw and pc on the resulting beliefs (responsibilities)
+
+Critical implementatino details include: the belief propogation algorithm is used to determine marginals not max-marginals in the EM procedure .
+Transition prob factor does not depend on params, therefore transitionFactors is constructed once outside the loop and is simply added to the factorPtr in each E-step iteration.
+The M-step logic is implemented as shown in eqn x and eqn y where the numerator for pw: 
+is the sum of beliefs at the locations where a detection actually occurred.The Numerator for $p_c$ is the weighted sum of "false detections" (all other detections in the grid besides the one at the wumpus's likely location).
+
+Once params have converged - this happens
 
 \section{Analysis of Results}
 Model performance is qualitatively assessed using a Python script to visualise the wumpus's path on the grid world. 
+The script uses command-line arguments to switch between datasets, automatically adjusting the grid dimensions and file paths for Datasets 1, 2, and 3.
 The detection data is overlayed with the inferred trajectory and ground-truth data, allowing for a clear visual 
 comparison of the results. Figure \ref{fig:dataset1_results} displays these results for Dataset 1 at various time steps, where the yellow star represents the ground-truth wumpus location and the red dot represents the location inferred by the MAP algorithm. 
-The corresponding visualisation for Dataset 2 is shown in Figure \ref{fig:dataset2_results}, where the model scales to a larger environment.
+The corresponding visualisation for Dataset 2 and 3 is shown in Figure \ref{fig:dataset2_results} and \ref{fig:dataset3_comparison}, respectively. 
+While investigating the qualitative results of Dataset 3, a deviation from the ground truth for the first few time steps is revealed. 
+These errors suggest that the model's initial uncertainty is only resolved once the posterior probability peaks more sharply around the actual coordinates, leading to the consistent tracking seen in the last half of the simulation.
 
 \begin{figure}[htbp]
     \centering
@@ -541,6 +555,25 @@ The corresponding visualisation for Dataset 2 is shown in Figure \ref{fig:datase
     \label{fig:dataset2_results}
 \end{figure}
 
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{d3t2.png}
+        \caption{Time Step 2}
+        \label{fig:step2}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{d3t19.png}
+        \caption{Time Step 19}
+        \label{fig:step19}
+    \end{subfigure}
+    \caption{Dataset 2 tracking performance on the $10 \times 20$ grid environment.}
+    \label{fig:dataset3_comparison}
+\end{figure}
+
 A quantitative evaluation is used to objectively analyse the performance and scalability of the models. The primary metrics utilised include: Accuracy, Neighbourhood Accuracy, 
 Root Mean Square Error and Mean Manhattan Distance (MMD). Accuracy represents the percentage of times steps where the inferred MAP location $W^t$ matches the ground-truth coordinates. 
 To quantify classification deviations, the RMSE was calculated to measure the average Euclidean distance between the predicted and actual positions. 
@@ -559,13 +592,14 @@ the average number of moves separating the MAP estimate from the wumpus's true l
 
 \begin{table}[htbp]
     \centering
-    \caption{Quantitative Results for Wumpus Tracking (Datasets 1 \& 2).}
+    \caption{Quantitative Results for Wumpus Tracking (Datasets 1, 2, \& 3).}
     \label{tab:performance_results}
     \begin{tabular}{lcccccl}
         \hline
         \textbf{Dataset} & \textbf{Acc. (\%)} & \textbf{N-Acc. (\%)} & \textbf{RMSE} & \textbf{MMD} & \textbf{Remarks} \\ \hline
         Dataset 1        & 100.00\% & 100.00\% & 0.0000 & 0.00 & Perfect tracking. \\
-        Dataset 2        & 85.00\%  & 85.00\%  & 0.5477 & 0.30 & Deviations at $t \in \{0, 5, 11\}$. \\ \hline
+        Dataset 2        & 85.00\%  & 85.00\%  & 0.5477 & 0.30 & Deviations at $t \in \{0, 5, 11\}$. \\
+        Dataset 3        & 75.00\%  & 80.00\%  & 1.0488 & 0.60 & Deviations at $t \in \{0, 1, 2, 3, 6\}$. \\ \hline
     \end{tabular}
     \\[10pt]
     \raggedright
@@ -580,10 +614,10 @@ $p_c$. In Dataset 2, an MMD of 0.30 steps suggests that across the 20 time steps
 This confirms that the trajectory remains highly reliable despite the increased state space of 400 cells. The low RMSE along with the MMD confirms that even when the model incorrectly classified the 
 wumpus's location, the prediction still remained in the spatial proximity of the ground truth.
 
+While Dataset 3 presents the most challenging tracking scenario, the model still achieves a 75.00\% accuracy. The Neighborhood Accuracy of 80.00\% suggests that 
+even when the model misses the exact cell, it remains within one unit of the true location the majority of the time. This 
+is further confirmed by the RMSE of 1.0488 and Mean Manhattan Distance (MMD) of 0.60, indicating that deviations are generally small and localised.
 
-TO-DO: GA Discussion
-Sources and better descibe that HMM stuff
-Extend to dataset three - add to design, software and evaluation
 
 \bibliographystyle{ieeetr} % Or plain
 \bibliography{references} 
