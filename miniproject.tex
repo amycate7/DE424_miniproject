@@ -254,53 +254,59 @@ $p_w$ and $p_c$ are unknown. An appropriate method to determine the parameters i
 The EM algorithm is an iterative method to estimate the parameters, $\Theta$, that maximise the data likelihood, $p(\mathbf{\mathcal{D} } | \Theta)$, subject to the presence of latent variables.
 The objective of the E-step is to perform inference on the hidden variables given the current estimate of the parameters, $\Theta$. 
 This is done by calculating the posterior distribution, $p(\mathcal{H}  | \mathbf{\mathcal{D}}, \Theta^{(t)})$, where $\mathcal{H} $ represents the latent variables. 
+Derivations resulted in the following equations: 
 
 \begin{equation}
-    q(W_t) = P(W_t \mid \mathbf{D}, \theta) = 
+    q(W_t) = P(W_t \mid \mathbf{Y}, \theta) =
     \begin{bmatrix} 
         \gamma_t(0) \\
         \vdots \\
         \gamma_t(N-1)
     \end{bmatrix}
 \end{equation}
-
-\begin{equation}
-    \gamma_t(i) = \frac{P(\mathbf{D}_t \mid W_t=i, \theta) \cdot \psi(W_t=i)}{\sum_{j=0}^{N-1} P(\mathbf{D}_t \mid W_t=j, \theta) \cdot \psi(W_t=j)}
-    \label{eq:gamma_update}
-\end{equation}
-
-\begin{equation}
-    q(\mathbf{W}) = \prod_{t=0}^{T-1} q(W_t) = \prod_{t=0}^{T-1} P(W_t \mid \mathbf{D}, \theta)
-\end{equation}
-As derived, the E-step can be implemented as follows:
-\begin{equation}
-    P(\mathbf{D}_t \mid W_t = i) = P(D_{t,i} \mid W_t = i) \prod_{j \neq i} P(D_{t,j} \mid W_t = i)
-    \label{eq:obs_general}
-\end{equation}
-
+Where the responsibilities $\gamma_t(i)$ are defined as: 
 \begin{equation}
     P(\mathbf{D}_t \mid W_t = i) = \left[ p_w^{D_{t,i}} (1-p_w)^{1-D_{t,i}} \right] \prod_{j \neq i} \left[ p_c^{D_{t,j}} (1-p_c)^{1-D_{t,j}} \right]
     \label{eq:obs_params}
 \end{equation}
 
 \begin{equation}
-    \mathcal{Q}(\Theta), \Theta^{(t)}) = \sum_{t,i} \gamma_t(i) \left[ D_{t,i} \log p_w + (1-D_{t,i}) \log(1-p_w) + \sum_{j \neq i} (D_{t,j} \log p_c + (1-D_{t,j}) \log(1-p_c)) \right]
-    \label{eq:q_function}
+    \gamma_t(i) = \frac{P(\mathbf{D}_t \mid W_t=i, \theta) \cdot P(W_t=i)}{\sum_{j=0}^{N-1} P(\mathbf{D}_t \mid W_t=j, \theta) \cdot P(W_t=j)}
+    \label{eq:gamma_update}
 \end{equation}
-Where the responsibilities $\gamma_t(i)$ are defined as: 
+
+
+The distribution over the entire latent trajectory is thus:
 \begin{equation}
-    \gamma_t(i) = P(W_t = i \mid \mathbf{D}_{1:T}, \theta)
-    \label{eq:gamma_def}
+    q(\mathcal{H}) = \prod_{t=0}^{T-1} q(W_t) = \prod_{t=0}^{T-1} P(W_t \mid \mathbf{D}, \theta)
 \end{equation}
 
 The M-step aims to update the parameters to maximise the auxiliary function, $Q(\Theta)$.
 \begin{equation}
 \Theta^{\text{new}} = \arg \max_{\Theta} \mathcal{Q}(\Theta)
 \end{equation}
-The following simplifications are shown in the practical notes:
-\begin{align}
-\mathcal{Q}(\Theta) &= \sum_{\mathcal{H}} q(\mathcal{H}) \log p(\mathcal{D}, \mathcal{H} | \Theta) \label{eq:objective}
-\end{align}
+To determine the update step for all the model parameters, the partial derivative of Equation \ref{eq:q_function} is taken with respect to each parameter and set to zero. 
+This results in the update equations \ref{eq:m_step_pw} and \ref{eq:m_step_pc}. 
+\begin{equation}
+    \mathcal{Q}(\Theta) = \sum_{t,i} \gamma_t(i) \left[ D_{t,i} \log p_w + (1-D_{t,i}) \log(1-p_w) + \sum_{j \neq i} (D_{t,j} \log p_c + (1-D_{t,j}) \log(1-p_c)) \right]
+    \label{eq:q_function}
+\end{equation}
+
+\begin{equation}
+    \hat{p}_w = \frac{1}{T} \sum_{t=0}^{T-1} \sum_{i=0}^{N-1} \gamma_t(i) D_{t,i}
+    \label{eq:m_step_pw}
+\end{equation}
+
+\begin{equation}
+    \hat{p}_c = \frac{\sum_{t=0}^{T-1} \sum_{i=0}^{N-1} \gamma_t(i) \left( S_t - D_{t,i} \right)}{T(N-1)}
+    \label{eq:m_step_pc}
+\end{equation}
+
+\begin{equation}
+    S_t = \sum_{j=0}^{N-1} D_{t,j}
+\end{equation}
+
+Where, $S_t$ is the total number of detections recorded across the entire $10 \times 20$ grid at time step $t$.
 
 \section{Code Implementation}
 \subsection{Random Variables Definition}
@@ -453,6 +459,8 @@ accomodate the larger environment, including the number of time steps ($T_{max}=
 The \texttt{locationDom} was expanded by iterating over 400 indices to accommodate the increased number of states. Importantly, the logic for factor construction, cluster graph creation, and MAP inference remained identical to the Dataset 1 implementation, 
 demonstrating the scalability of the model. Additionally, the evidence-loading function was refined with zero-padding logic to handle varying filenames (e.g., \texttt{data\_file001.txt} vs \texttt{data\_file010.txt}), 
 ensuring robust data ingestion for the extended timeline.
+
+\subsection{Dataset 3}
 
 \section{Analysis of Results}
 Model performance is qualitatively assessed using a Python script to visualise the wumpus's path on the grid world. 
